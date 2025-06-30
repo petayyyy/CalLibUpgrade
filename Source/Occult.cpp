@@ -6,12 +6,12 @@
 //
 // Notes:
 //
-//   This software is protected by national and international copyright. 
-//   Any unauthorized use, reproduction or modificaton is unlawful and 
-//   will be prosecuted. Commercial and non-private application of the 
+//   This software is protected by national and international copyright.
+//   Any unauthorized use, reproduction or modificaton is unlawful and
+//   will be prosecuted. Commercial and non-private application of the
 //   software in any form is strictly prohibited unless otherwise granted
 //   by the authors.
-//   
+//
 // (c) 1999 Oliver Montenbruck, Thomas Pfleger
 //
 //------------------------------------------------------------------------------
@@ -91,17 +91,17 @@ class Star {
     static double T_Epoch;       // Current epoch
 
     static Mat3D  PN;            // Precession/nutation matrix
-    static Vec3D  v_Earth;       // Earth velocity vector 
+    static Vec3D  v_Earth;       // Earth velocity vector
 
 };
 
 
-// Static class variables 
+// Static class variables
 double Star::T_CatEquinox;  // Catalogue equinox
 double Star::T_CatEpoch;    // Catalogue epoch
 double Star::T_Epoch;       // Current epoch
 Mat3D  Star::PN;            // Precession/nutation matrix
-Vec3D  Star::v_Earth;       // Earth velocity vector 
+Vec3D  Star::v_Earth;       // Earth velocity vector
 
 
 void Star::SetCatEquinox (double T)
@@ -119,13 +119,13 @@ void Star::SetCatEpoch (double T)
 void Star::SetEpoch (double T)
 {
   T_Epoch = T;  // Save epoch
-  
+
   // Transformation from mean equator and equinox of catalogue
   // to true equator and equinox of date
   PN = NutMatrix(T)*PrecMatrix_Equ(T_CatEquinox, T);
 
   // Earth velocity vector w.r.t. mean equator and equinox of date
-  // in units of speed of light 
+  // in units of speed of light
   v_Earth = Ecl2EquMatrix(T)*KepVelocity(Earth, T) / c_light;
 }
 
@@ -157,10 +157,10 @@ istream& operator >> (istream& is, Star& aStar)
   is >> h >> m >> s >> mu_a;
   is.get(c).get(c).get(c).get(sign);
   is >> deg >> min >> sec >> mu_d;
-  
-  is >> aStar.mag; 
+
+  is >> aStar.mag;
   is.get(c).get(c).get(c).get(aStar.name,12);
-  is.ignore(81,'\n'); 
+  is.ignore(81,'\n');
 
   aStar.RA_Cat  = Rad*15.0*Ddd(h,m,s);
   aStar.Dec_Cat = Rad*Ddd(deg,min,sec);
@@ -189,7 +189,7 @@ class Event {
     Event();
     Event( const Star& aStar, double MjdUT, enEvent InOut, bool visible,
            double PosAng, double a, double b );
-    
+
     inline bool IsVisible() { return m_visible; };
 
     friend ostream& operator << (ostream& os, Event& anEvent);
@@ -211,7 +211,7 @@ class Event {
 Event::Event()
 : m_visible(false),
   m_InOut(dummy)
-{ 
+{
 }
 
 Event::Event( const Star& aStar, double MjdUT, enEvent InOut, bool visible,
@@ -232,14 +232,14 @@ Event::Event( const Star& aStar, double MjdUT, enEvent InOut, bool visible,
 //
 ostream& operator << (ostream& os, Event& anEvent)
 {
-  if ( anEvent.m_InOut != dummy ) {   
-    
+  if ( anEvent.m_InOut != dummy ) {
+
     // Output true events only
     os << " " << DateTime(anEvent.m_MjdUT)
        << "  " << anEvent.m_Star.Name()
        << fixed << setprecision(1)
        << setw(5) << anEvent.m_Star.Mag()
-       << "    " << ( (anEvent.m_InOut==in)? "D" : "R" ) 
+       << "    " << ( (anEvent.m_InOut==in)? "D" : "R" )
        << "    " << Time(24.0*Modulo(anEvent.m_MjdUT, 1.0),HHMMSS)
        << fixed << setprecision(1)
        << setw(7) << int(Deg*anEvent.m_PosAng + 0.5)
@@ -247,7 +247,7 @@ ostream& operator << (ostream& os, Event& anEvent)
        << setw(7) << anEvent.m_b/Deg
        << endl;
   }
-  
+
   return os;
 }
 
@@ -260,7 +260,7 @@ ostream& operator << (ostream& os, Event& anEvent)
 //
 //   Filename     Name of catalogue file to read
 //
-// Output:  
+// Output:
 //
 //   Stars        Array of Star objects to store catalogue
 //   StarsRead    Number of stars read from catalogue file
@@ -277,9 +277,9 @@ void ReadCatalogue (char* Filename, Star*& Stars, int& StarsRead)
   double   Y_Epoch, Y_Eqx;
   int      i;
 
-  inp.open(Filename); 
+  inp.open(Filename);
 
-  
+
   // Read and store epoch and equinox
   inp >> Y_Epoch >> Y_Eqx;
 
@@ -290,18 +290,18 @@ void ReadCatalogue (char* Filename, Star*& Stars, int& StarsRead)
   // Read stars
   StarsRead = 0;
   inp >> StarsRead; inp.ignore(81,'\n');
-  
+
   Stars = new Star[StarsRead];  // Allocate memory for catalogue array
 
   if (Stars != NULL) {
-    for (i=0; i<StarsRead; i++)  inp >> Stars[i]; 
+    for (i=0; i<StarsRead; i++)  inp >> Stars[i];
   }
   else
     cerr << "Insufficient memory to read star catalogue." << endl;
-  
+
   inp.close();
 
-  cout << endl << " " << StarsRead 
+  cout << endl << " " << StarsRead
        << " stars read from catalogue" << endl << endl;
 }
 
@@ -341,27 +341,27 @@ void GetInput ( double& MjdStart, double& MjdEnd,  double& ET_UT,
   cin >> year >> month >> day; cin.ignore(81,'\n');
   MjdEnd = Mjd(year,month,day);
 
-  
+
   // Query difference between ephemeris time and universal time
   ETminUT ( (0.5*(MjdStart+MjdEnd)-MJD_J2000)/36525.0, ET_UT, valid );
 
   if ( valid ) {
-    cout << " Difference ET-UT (proposal:" << fixed << setw(6) 
+    cout << " Difference ET-UT (proposal:" << fixed << setw(6)
          << setprecision (1) << ET_UT << " sec)       ... ";
     cin >> ET_UT; cin.ignore(81,'\n');
   }
   else {
-    cout << " Difference ET-UT (sec)" << setw(27) << right << "... "; 
+    cout << " Difference ET-UT (sec)" << setw(27) << right << "... ";
     cin >> ET_UT; cin.ignore(81,'\n');
   }
 
-  
+
   // Query geographic coordinates
   cout << " Observer's coordinates: East longitude [deg] ... ";
   cin >> Lambda; cin.ignore(81,'\n');
   cout << "                         latitude       [deg] ... ";
-  cin >> Phi; cin.ignore(81,'\n'); 
- 
+  cin >> Phi; cin.ignore(81,'\n');
+
   Lambda *= Rad; Phi *= Rad;
   R_Obs = Site (Lambda, Phi);
 }
@@ -392,7 +392,7 @@ double RA_Diff (double T)
 
 //------------------------------------------------------------------------------
 //
-// Conjunct: Checks for possibility of a lunar occultation 
+// Conjunct: Checks for possibility of a lunar occultation
 //
 // Input:
 //
@@ -402,8 +402,8 @@ double RA_Diff (double T)
 //   RA2      Right ascension of the Moon at T2 in [rad]
 //   e        Direction of star to check (equatorial coordinates)
 //
-// Output:    
-// 
+// Output:
+//
 //   Conj     Flag indicating whether an occultation is at least likely
 //   T_Conj   Time of conjunction
 //
@@ -428,7 +428,7 @@ void Conjunct ( double T1,  double T2, double RA1, double RA2, Vec3D& e,
   T_Conj = 0.0;                       // Default value
   bool Success = false;
 
-  
+
   if ( RA2<RA1 ) RA2+=pi2;            // Map to [RA1,RA1+2*pi[
 
   RA_Star = e[phi];
@@ -438,7 +438,7 @@ void Conjunct ( double T1,  double T2, double RA1, double RA2, Vec3D& e,
 
   if ( Conj ) {
     Pegasus(RA_Diff, T1, T2, eps, T_Conj, Success);
-    r_Moon = ChebMoonEqu.Value(T_Conj); 
+    r_Moon = ChebMoonEqu.Value(T_Conj);
     Conj = ( Norm( r_Moon-e*Dot(r_Moon,e) ) < 1.5*R_Earth );
   }
 }
@@ -455,8 +455,8 @@ void Conjunct ( double T1,  double T2, double RA1, double RA2, Vec3D& e,
 //   e        Direction of star to check (equatorial coordinates)
 //   R_Obs    Geocentric position of the observer in [km]
 //
-// Output:    
-// 
+// Output:
+//
 //   f, g     Relative fundamental plane coordinates in [km]
 //   s        Square of distance between shadow axis and observer in [km]
 //
@@ -465,13 +465,13 @@ void Conjunct ( double T1,  double T2, double RA1, double RA2, Vec3D& e,
 //   ChebMoonEqu  Chebyshev approximation of lunar coordinates
 //
 //------------------------------------------------------------------------------
-void FG ( double T_ET, double ET_UT, const Vec3D& e, const Vec3D& R_Obs, 
-          double& f, double& g, double& s ) 
+void FG ( double T_ET, double ET_UT, const Vec3D& e, const Vec3D& R_Obs,
+          double& f, double& g, double& s )
 {
   //
   // Variables
   //
-  double  MjdUT; 
+  double  MjdUT;
   Vec3D   e_x, e_y, r_Moon, r_Obs;
 
 
@@ -509,8 +509,8 @@ void FG ( double T_ET, double ET_UT, const Vec3D& e, const Vec3D& R_Obs,
 //   InOut      Indicates disappearance or reappearance
 //   mag        Magnitude of the star in [mag]
 //
-// Output:    
-// 
+// Output:
+//
 //   PosAngle   Position angle w.r.t. North in [rad]
 //   a          Longitude coefficient in [min/']
 //   b          Latitude coefficient in [min/']
@@ -523,7 +523,7 @@ void FG ( double T_ET, double ET_UT, const Vec3D& e, const Vec3D& R_Obs,
 //------------------------------------------------------------------------------
 void Contact ( double T_ET, double ET_UT, const Vec3D& e, const Vec3D& R_Obs,
                enEvent InOut, double mag,
-               double& PosAngle, double& a, double& b, bool& Visible ) 
+               double& PosAngle, double& a, double& b, bool& Visible )
 {
   //
   // Constants
@@ -535,7 +535,7 @@ void Contact ( double T_ET, double ET_UT, const Vec3D& e, const Vec3D& R_Obs,
   //
   // Variables
   //
-  double  MjdUT; 
+  double  MjdUT;
   Vec3D   e_x, e_y, r_Moon, r_Obs, e_Obs, r_Sun;
   Vec3D   dt_dr, dr_dlambda, dr_dphi;
   double  s_0, f, g, ff, gg, fdot, gdot;
@@ -552,18 +552,18 @@ void Contact ( double T_ET, double ET_UT, const Vec3D& e, const Vec3D& R_Obs,
   // Lunar position
   r_Moon = ChebMoonEqu.Value(T_ET);
 
-  
+
   // Observer's geocentric position
   MjdUT = (36525.0*T_ET+MJD_J2000) - ET_UT/86400;
 
   r_Obs = R_z(-GMST(MjdUT)) * R_Obs;
   e_Obs = r_Obs / Norm(r_Obs);
 
-  
-  // Altitude of star above the horizon
-  Elev = asin ( Dot(e_Obs,e) ); 
 
-  
+  // Altitude of star above the horizon
+  Elev = asin ( Dot(e_Obs,e) );
+
+
   // Relative fundamental plane coordinates
   f = Dot ( e_x, r_Moon - r_Obs );
   g = Dot ( e_y, r_Moon - r_Obs );
@@ -578,7 +578,7 @@ void Contact ( double T_ET, double ET_UT, const Vec3D& e, const Vec3D& R_Obs,
   fdot = (ff-f)/dt;  // [km/min]
   gdot = (gg-g)/dt;
 
-  
+
   // Derivatives of observer position w.r.t. geocentric coordinates
   dr_dlambda = Cross ( Vec3D(0,0,1), r_Obs );
   dr_dphi    = Cross ( r_Obs, dr_dlambda / Norm(dr_dlambda) );
@@ -589,9 +589,9 @@ void Contact ( double T_ET, double ET_UT, const Vec3D& e, const Vec3D& R_Obs,
 
   a = Dot ( dt_dr, dr_dlambda );
   b = Dot ( dt_dr, dr_dphi    );
-  
 
-  // Compute solar coordinates, altitude and position angle 
+
+  // Compute solar coordinates, altitude and position angle
   r_Sun = AU*SunEqu(T_ET);
   ElevSun = asin ( Dot ( e_Obs, r_Sun/Norm(r_Sun) ) );
   PosAngSun = PosAng(r_Moon-r_Obs, r_Sun-r_Moon);
@@ -604,34 +604,34 @@ void Contact ( double T_ET, double ET_UT, const Vec3D& e, const Vec3D& R_Obs,
 
 
   // Visibility conditions
-  Visible = ( // Minimum altitude of star 
+  Visible = ( // Minimum altitude of star
               ( Elev > +5.0*Rad )                    ||
-              ( Elev > +2.0*Rad ) && ( mag <= 1.9 ) 
+              ( Elev > +2.0*Rad ) && ( mag <= 1.9 )
             ) &&
             ( // Minimum depression of the Sun
               ( ElevSun < -6.0*Rad ) && ( mag <= 7.5 ) ||
               ( ElevSun < -3.0*Rad ) && ( mag <= 5.5 ) ||
               ( ElevSun < -0.5*Rad ) && ( mag <= 4.5 ) ||
-                                        ( mag <= 1.9 ) 
+                                        ( mag <= 1.9 )
             ) &&
             ( // Lunar phase
               ( i > 36.0*Rad )                   ||
               ( i > 24.0*Rad ) && ( mag <= 6.5 ) ||
               ( i > 12.0*Rad ) && ( mag <= 5.5 ) ||
-                                  ( mag <= 3.5 ) 
+                                  ( mag <= 3.5 )
             ) &&
             ( // Limb illumination
               ( !BrightLimb ) && (InOut==in )               ||
               ( !BrightLimb ) && (InOut==out) && (mag<=6.5) ||
               (  BrightLimb ) && (InOut==in ) && (mag<=4.5) ||
-              (  BrightLimb ) && (InOut==out) && (mag<=3.5)  
+              (  BrightLimb ) && (InOut==out) && (mag<=3.5)
             );
 }
 
 
 //------------------------------------------------------------------------------
 //
-// Examine: Checks for possibility of a lunar occultation 
+// Examine: Checks for possibility of a lunar occultation
 //
 // Input:
 //
@@ -643,13 +643,13 @@ void Contact ( double T_ET, double ET_UT, const Vec3D& e, const Vec3D& R_Obs,
 //   R_Obs    Geocentric position of the observer in [km]
 //   aStar    Star to examine
 //
-// Output:    
-// 
+// Output:
+//
 //   In       Disappearance event
 //   Out      Reappearance event
 //
 //------------------------------------------------------------------------------
-void Examine ( double T1, double T2, double RA1, double RA2, double ET_UT, 
+void Examine ( double T1, double T2, double RA1, double RA2, double ET_UT,
                const Vec3D& R_Obs, Star& aStar, Event& In, Event& Out )
 {
   //
@@ -658,8 +658,8 @@ void Examine ( double T1, double T2, double RA1, double RA2, double ET_UT,
   const double cy = 876600.0;    // Hours per century
   const double dT = 0.25/cy;     // Step size
   const double DT = 2.25/cy;     // Search interval [-DT-dT,+DT+dT]
-  
-  
+
+
   //
   // Variables
   //
@@ -682,14 +682,14 @@ void Examine ( double T1, double T2, double RA1, double RA2, double ET_UT,
   Conjunct ( T1, T2, RA1, RA2, e, Conj, T_Conj );
   if (!Conj) return;
 
-  
+
   // Search for times of contact
   n_found = 0;
   T = T_Conj - DT;
   FG (T-dT, ET_UT, e, R_Obs, f, g, s_minus);
-  
+
   while (true) {
-  
+
     // Interpolate fundamental plane distance and find times of contact
     FG (T   , ET_UT, e, R_Obs, f, g, s_0   );
     FG (T+dT, ET_UT, e, R_Obs, f, g, s_plus);
@@ -698,14 +698,14 @@ void Examine ( double T1, double T2, double RA1, double RA2, double ET_UT,
       T_Cont[n_found+i] = T + root[i]*dT;
     n_found += n_root;
     Conj = (n_found==2);
-    
+
     if ( (Conj) || (T_Conj+DT<T) ) break; // Exit loop
-    
+
     T+=2.0*dT; // Increment time
 
     s_minus = s_plus;
   };
-    
+
   // Contacts (disappearance, reappearance)
   if (Conj) {
     for (i=in;i<=out;i++)  {
@@ -725,7 +725,7 @@ void Examine ( double T1, double T2, double RA1, double RA2, double ET_UT,
 // Main program
 //
 //------------------------------------------------------------------------------
-void main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
   //
   // Constants
@@ -752,29 +752,29 @@ void main(int argc, char* argv[])
   // Title
   cout << endl
        << "           OCCULT: occultations of stars by the Moon  " << endl
-       << "          (c) 1999 Oliver Montenbruck, Thomas Pfleger " << endl 
+       << "          (c) 1999 Oliver Montenbruck, Thomas Pfleger " << endl
        << endl;
 
-  
+
   // Find catalogue file and (optional) name of output file
-  GetFilenames( argc, argv, "Occult.dat", InputFile, FoundInputfile, 
+  GetFilenames( argc, argv, "Occult.dat", InputFile, FoundInputfile,
                 OutputFile, FoundOutputfile );
 
   // Terminate program if input file could not be found
   if (!FoundInputfile) {
     cerr << "Terminating program." << endl;
-    exit(-1);
+    return -1;
   }
 
-  
+
   ReadCatalogue (InputFile, Stars, NStars);
 
   // Terminate program, if star catalogue could not be read
   if (NStars == 0) {
     cerr << "Terminating program." << endl;
-    exit(-1);
+    return -1;
   }
-  
+
   // Get user input (search interval, observer location, etc.)
   GetInput (MjdStart, MjdEnd, ET_UT, R_Obs);
 
@@ -782,27 +782,27 @@ void main(int argc, char* argv[])
   // Redirect output if output file shall be created
   if (FoundOutputfile) {
     OutFile.open(OutputFile);
-    if (OutFile.is_open())
-      cout = OutFile;
+    if (OutFile.is_open());
+     // cout = OutFile;
   }
 
 
   // Print header
-  cout 
+  cout
    << endl
    << "    Date        Name      m_v   D/R      UT       Pos      a      b  "
    << endl
    << "                          mag                     deg    m/deg  m/deg"
    << endl;
-  
-  
+
+
   // Search occultations in subsequent time intervals (ephemeris time)
   T    = (MjdStart-MJD_J2000)/36525.0;
   TEnd = (MjdEnd  -MJD_J2000)/36525.0;
 
   do {
 
-    // Chebyshev approximation of lunar coordinates 
+    // Chebyshev approximation of lunar coordinates
     ChebMoonEqu.Fit(T-Margin, T+Interval+Margin);
 
     RA_min = ChebMoonEqu.Value(T)[phi];
@@ -823,7 +823,7 @@ void main(int argc, char* argv[])
       if (In.IsVisible() ) cout << In;
       if (Out.IsVisible()) cout << Out;
     }
-     
+
     T += Interval;  // Next interval
   }
   while (T<TEnd);

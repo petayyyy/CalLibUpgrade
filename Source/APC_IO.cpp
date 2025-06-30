@@ -1,28 +1,29 @@
 //------------------------------------------------------------------------------
 //
 // APC_IO.cpp
-// 
+//
 // Purpose:
 //
 //    Implements file I/O utilities
 //
 // Notes:
 //
-//   This software is protected by national and international copyright. 
-//   Any unauthorized use, reproduction or modificaton is unlawful and 
-//   will be prosecuted. Commercial and non-private application of the 
+//   This software is protected by national and international copyright.
+//   Any unauthorized use, reproduction or modificaton is unlawful and
+//   will be prosecuted. Commercial and non-private application of the
 //   software in any form is strictly prohibited unless otherwise granted
 //   by the authors.
-//   
+//
 // (c) 1999 Oliver Montenbruck, Thomas Pfleger
 //
 //------------------------------------------------------------------------------
 
 #include <iostream>
-#include <fstream>     
+#include <fstream>
+#include <cstring>
 
 #ifdef __GNUC__   // GNU C++ adaptation
-#include <memory>       
+//#include <memory>
 #endif
 
 #include "APC_IO.h"
@@ -47,16 +48,16 @@ bool FileExists(char* Filename)
   //
   // Variables
   //
-  
+
   bool exists = false;
 
   if (Filename != NULL) {
-    ifstream File;                 
-    File.open(Filename,ios::in);   
-    exists = File.is_open();  
-    if (exists) File.close();  
+    ifstream File;
+    File.open(Filename,ios::in);
+    exists = File.is_open();
+    if (exists) File.close();
   }
-  
+
   return exists;
 }
 
@@ -81,8 +82,8 @@ bool FileExists(char* Filename)
 // Notes: file names are limited to max. APC_MaxFilename characters
 //
 //------------------------------------------------------------------------------
-void GetFilenames( int argc, char* argv[], 
-                   char* DefInputFile, 
+void GetFilenames( int argc, char* argv[],
+                   char* DefInputFile,
                    char* InputFile,  bool& FoundInputFile,
                    char* OutputFile, bool& FoundOutputFile )
 {
@@ -90,12 +91,12 @@ void GetFilenames( int argc, char* argv[],
   FoundOutputFile = false;
 
   // Clear buffers
-  memset(InputFile,  0, APC_MaxFilename);
-  memset(OutputFile, 0, APC_MaxFilename);
+//  memset(InputFile,  0, APC_MaxFilename);
+//  memset(OutputFile, 0, APC_MaxFilename);
 
-  
+
   // Check for command line arguments
-  if (argc>=2) {  
+  if (argc>=2) {
     if( FileExists(argv[1]) ) {
       strncpy(InputFile, argv[1], APC_MaxFilename-1);
       FoundInputFile = true;
@@ -112,8 +113,8 @@ void GetFilenames( int argc, char* argv[],
       FoundInputFile = true;
       cout << " Using default input file " << DefInputFile << endl;
     }
-    else 
-      cout << " Default file " << DefInputFile 
+    else
+      cout << " Default file " << DefInputFile
            << " not found." << endl;
   }
 }

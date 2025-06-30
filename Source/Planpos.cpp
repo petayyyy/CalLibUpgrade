@@ -6,12 +6,12 @@
 //
 // Notes:
 //
-//   This software is protected by national and international copyright. 
-//   Any unauthorized use, reproduction or modificaton is unlawful and 
-//   will be prosecuted. Commercial and non-private application of the 
+//   This software is protected by national and international copyright.
+//   Any unauthorized use, reproduction or modificaton is unlawful and
+//   will be prosecuted. Commercial and non-private application of the
 //   software in any form is strictly prohibited unless otherwise granted
 //   by the authors.
-//   
+//
 // (c) 1999 Oliver Montenbruck, Thomas Pfleger
 //
 //-------------------------------------------------------------------------
@@ -44,18 +44,18 @@ using namespace std;
 // Main program
 //
 //-------------------------------------------------------------------------
-void main()
+int main()
 {
   //
   // Constants
   //
 
   // Body names
-  const char* Name[] = 
+  const char* Name[] =
     { "Sun", "Mercury", "Venus", "Earth", "Mars",
       "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto" };
 
-  
+
   //
   // Variables
   //
@@ -85,24 +85,24 @@ void main()
          << " (J) J2000 astrometric       (B) B1950 astrometric  " << endl
          << " (A) apparent coordinates    (E) exit               " << endl
          << endl
-         << " Enter option ... "; 
+         << " Enter option ... ";
     cin >> Mode; cin.ignore(81,'\n'); Mode = tolower(Mode);
     cout << endl;
 
     // Actions
-    
+
     // Terminate, if Mode=Exit
     if (Mode=='e') {
-      End=true; 
+      End=true;
       break;
     }
 
     // Cycle, if Mode is invalid
     if (Mode!='j' && Mode!='b' && Mode!='a') continue;
 
-    
+
     // Epoch date
-    cout << " Date (yyyy mm dd hh.hhh) ... "; 
+    cout << " Date (yyyy mm dd hh.hhh) ... ";
     cin >> year >> month >> day >> Hour; cin.ignore(81,'\n');
     cout << endl << endl << endl;
 
@@ -129,17 +129,17 @@ void main()
          << "h  m  s      o  '  \"      AU"
          << endl;
 
-   
+
     // Ecliptic coordinates of the Sun, equinox of date
     R_Sun = SunPos(T);
 
     // Loop over planets
-    if ( (-1.1<T) && (T<1.0) ) 
-      last=Pluto; 
+    if ( (-1.1<T) && (T<1.0) )
+      last=Pluto;
     else last=Neptune;
-    
+
     for (iPlanet=Sun; iPlanet<=last; iPlanet++) {
-      
+
       // Heliocentric ecliptic coordinates of the planet; equinox of date
       Planet = (PlanetType) iPlanet;
       r_helioc = PertPosition(Planet, T);
@@ -151,16 +151,16 @@ void main()
       dist = Norm(r_geoc);
       fac = dist/c_light;
 
-      if (Mode=='a') 
-        r_geoc -= fac*(KepVelocity(Planet,T)-KepVelocity(Earth,T)); 
-      else        
-        r_geoc -= fac*KepVelocity(Planet,T); 
+      if (Mode=='a')
+        r_geoc -= fac*(KepVelocity(Planet,T)-KepVelocity(Earth,T));
+      else
+        r_geoc -= fac*KepVelocity(Planet,T);
 
       // Precession and equatorial coordinates;
 
       switch (Mode) {
 
-        case 'a':  r_equ    = NutMatrix(T) * Ecl2EquMatrix(T) * r_geoc; 
+        case 'a':  r_equ    = NutMatrix(T) * Ecl2EquMatrix(T) * r_geoc;
                    break;
         case 'j':  P        = PrecMatrix_Ecl(T,T_J2000);
                    r_helioc = P * r_helioc;
@@ -171,23 +171,23 @@ void main()
                    r_helioc = P * r_helioc;
                    r_geoc   = P * r_geoc;
                    r_equ    = Ecl2EquMatrix(T_B1950) * r_geoc;
-      } 
+      }
 
-      
+
       // Output
       cout << " " << setw(8) << left << Name[iPlanet] << right;
       cout << fixed << setprecision(1)
-           << setw(11) << Angle(Deg*r_helioc[phi],DMMSSs) << " " 
+           << setw(11) << Angle(Deg*r_helioc[phi],DMMSSs) << " "
            << setw(11) << Angle(Deg*r_helioc[theta],DMMSSs);
-      if (Planet<=Earth) 
+      if (Planet<=Earth)
         cout << setprecision(6) << setw(11) << r_helioc[r];
       else
         cout << setprecision(5) << setw(10) << r_helioc[r] << " ";
       cout << setprecision(2) << setw(13) << Angle(Deg*r_equ[phi]/15.0,DMMSSs)
-           << " " << showpos 
+           << " " << showpos
            << setprecision(1) << setw(11) << Angle(Deg*r_equ[theta],DMMSSs)
            << noshowpos;
-      if (Planet<=Earth) 
+      if (Planet<=Earth)
         cout << setprecision(6) << setw(11) << dist;
       else
         cout << setprecision(5) << setw(10) << dist << " ";
@@ -200,14 +200,14 @@ void main()
     cout << endl
          << " l,b,r:   heliocentric ecliptic (geometric) " << endl
          << " RA,Dec:  geocentric equatorial ";
-    if (Mode=='a') 
+    if (Mode=='a')
       cout << "(apparent)" << endl;
-    else 
+    else
       cout << "(astrometric)" << endl;
     cout << " delta:   geocentric distance   (geometric)" << endl
          << endl;
 
   }
   while (!End);
- 
+
 }

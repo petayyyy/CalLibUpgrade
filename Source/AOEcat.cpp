@@ -1,18 +1,18 @@
 //------------------------------------------------------------------------------
 //
 // Module:     AOEcat.cpp
-// 
+//
 // Purpose:    Selection of Minor Planets from Lowell Observatory's
 //             "Asteroids Orbital Elements Database"
 //
 // Notes:
 //
-//   This software is protected by national and international copyright. 
-//   Any unauthorized use, reproduction or modificaton is unlawful and 
-//   will be prosecuted. Commercial and non-private application of the 
+//   This software is protected by national and international copyright.
+//   Any unauthorized use, reproduction or modificaton is unlawful and
+//   will be prosecuted. Commercial and non-private application of the
 //   software in any form is strictly prohibited unless otherwise granted
 //   by the authors.
-//   
+//
 // (c) 1999 Oliver Montenbruck, Thomas Pfleger
 //
 //------------------------------------------------------------------------------
@@ -21,14 +21,10 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-
-
-#ifdef __GNUC__  // GNU C++ Adaptations
+#include <cstring>
 #include <cstdlib>
-#include <ctype.h>
-#include <string.h>
-#include "GNU_iomanip.h"
-#endif
+
+
 
 using namespace std;
 
@@ -39,7 +35,7 @@ using namespace std;
 //
 //------------------------------------------------------------------------------
 
-void main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
 
   // Variables
@@ -53,37 +49,37 @@ void main(int argc, char* argv[])
   char      Num[6];               // Number of the minor planet
   int       n,Number;             // Number of the minor planet
   char      Name[19],name[19];    // Name/designation
-  double    H,G;                  // Brightness 
+  double    H,G;                  // Brightness
   long      ymd;                  // Epoch
   int       year,month,day;       // Epoch
   double    a,e,i,Omega,omega,M;  // Orbital elements
 
 
   // Header
-  
+
   cout << endl
        << "  AOEcat: Selection of Data from the "
        << "Asteroid Orbital Elements Database"
        << endl
-       << "               (c) 1999 Oliver Montenbruck, Thomas Pfleger" 
+       << "               (c) 1999 Oliver Montenbruck, Thomas Pfleger"
        << endl << endl;
-  
+
   // Open input file for reading
-  
-  if (argc>1) 
+
+  if (argc>1)
     inp.open(argv[1]);
   else {
     inp.open("astorb.dat");
   };
   if (!inp) {
     cerr << " Abort. Input file not found." << endl;
-    exit(1);
+    return 1;
   }
 
   // Query
-   
+
   cout << " Name/number of the minor planet: ";
-  cin.get(Query,19,'\n'); 
+  cin.get(Query,19,'\n');
   cout << endl;
 
   strcpy(query,Query);
@@ -97,10 +93,10 @@ void main(int argc, char* argv[])
   // Redirect output if output file shall be created
   if (argc>2) {
     out.open(argv[2]);
-    if (out.is_open()) cout = out;
+//    if (out.is_open()) cout = out;
   };
   cout << endl;
-    
+
   // Read all data sets
 
   while (true) {
@@ -111,7 +107,7 @@ void main(int argc, char* argv[])
     inp.ignore(1);              //   6       (empty)
     inp.get(Name,19);           //   7- 24   Name/designation
     inp.ignore(1);              //  25       (empty)
-    inp.ignore(15);             //  26- 40   Author  
+    inp.ignore(15);             //  26- 40   Author
     inp.ignore(1);              //  41       (empty)
     inp >> H;                   //  42- 46   Brightness [mag]
     inp.ignore(1);              //  47       (empty)
@@ -134,7 +130,7 @@ void main(int argc, char* argv[])
     // Extracting data
 
     Number = atoi(Num);
-    
+
     year  = ymd/10000;
     month = (ymd%10000)/100;
     day   = ymd%100;
@@ -142,21 +138,21 @@ void main(int argc, char* argv[])
     if (inp.fail()) break;
 
     // Test
-    
+
     strcpy(name,Name);
     for (k=0;name[k]!=0;k++) name[k]=tolower(name[k]); // Lower case copy
-    
+
     found = ( strncmp(query,name,strlen(query)) == 0 );
 
     found = ( found | (numeric & (n==Number)) );
-    
+
     // Ausgabe
 
     if (found) {
 
       cout << setw(5) << year  << " "  << setfill('0')
            << setw(2)  << month << " " << setw(2)  << day << ".0"
-           << setfill(' ') 
+           << setfill(' ')
            << "   ! Epoch        Minor planet";
       if (Number!=0) cout << "(" << Number << ") ";
       cout << Name << endl
@@ -173,16 +169,16 @@ void main(int argc, char* argv[])
            << "   ! omega [deg]" << endl
            << setprecision(6) << setw(13) << M
            << "   ! M [deg]" << endl
-           << setprecision(1) << setw(13) << 2000.0 
+           << setprecision(1) << setw(13) << 2000.0
            << "   ! Equinox" << endl;
 
       break;
 
     };
-    
+
     // Skip remaining characters
-    
-    inp.ignore(266,'\n'); 
+
+    inp.ignore(266,'\n');
 
   };
 
@@ -191,7 +187,7 @@ void main(int argc, char* argv[])
   if (!found) {
     cout << "Minor planet " << Query << " not found" << endl;
   }
-  
+
   // Close input file
 
   inp.close();

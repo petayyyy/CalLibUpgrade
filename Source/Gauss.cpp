@@ -6,12 +6,12 @@
 //
 // Notes:
 //
-//   This software is protected by national and international copyright. 
-//   Any unauthorized use, reproduction or modificaton is unlawful and 
-//   will be prosecuted. Commercial and non-private application of the 
+//   This software is protected by national and international copyright.
+//   Any unauthorized use, reproduction or modificaton is unlawful and
+//   will be prosecuted. Commercial and non-private application of the
 //   software in any form is strictly prohibited unless otherwise granted
 //   by the authors.
-//   
+//
 // (c) 1999 Oliver Montenbruck, Thomas Pfleger
 //
 //------------------------------------------------------------------------------
@@ -31,9 +31,6 @@
 #include "APC_Time.h"
 #include "APC_VecMat3D.h"
 
-#ifdef __GNUC__  // GNU C++ adaptation
-#include "GNU_iomanip.h"
-#endif
 
 using namespace std;
 
@@ -56,7 +53,7 @@ using namespace std;
 //
 //------------------------------------------------------------------------------
 void Start ( char* InputFile,
-             char* Header, 
+             char* Header,
              Vec3D R_Sun[], Vec3D e[], double Mjd0[], double& T_eqx )
 {
   //
@@ -67,25 +64,25 @@ void Start ( char* InputFile,
   double    T_eqx0, T, RA, Dec;
   ifstream  inp;
 
-  
+
   inp.open(InputFile);  // Open observation file
 
-  inp.get(Header,81);   // Read header 
-  
+  inp.get(Header,81);   // Read header
+
 
   // Read observations
   for (i=0;i<=2;i++) {
 
-    inp >> Year >> Month >> Day >> Hour; 
-    inp >> deg >> min >> secs; 
+    inp >> Year >> Month >> Day >> Hour;
+    inp >> deg >> min >> secs;
     RA = Rad*15.0*Ddd(deg,min,secs);
-    inp >> deg >> min >> secs; 
+    inp >> deg >> min >> secs;
     Dec = Rad*Ddd(deg,min,secs);
     inp.ignore(81,'\n');
     Mjd0[i] = Mjd(Year,Month,Day) + Hour/24.0;
     e[i]   = Vec3D(Polar(RA,Dec));
   }
-  
+
 
   // Equinox of observations and target equinox
   inp >> year; inp.ignore(81,'\n');
@@ -94,7 +91,7 @@ void Start ( char* InputFile,
   T_eqx = (year-2000.0)/100.0;
 
 
-  // Initial data for orbit determination 
+  // Initial data for orbit determination
   // (observations and Sun position referred to ecliptic and equinox of T_eqx)
   for (i=0;i<=2;i++) {
     T        = (Mjd0[i]-MJD_J2000) / 36525.0;
@@ -106,22 +103,22 @@ void Start ( char* InputFile,
   // Print summary of initial data
   cout << " Summary of orbit determination" << endl << endl
        << "  " << Header << endl  << endl
-       << " Initial data (geocentric ecliptic coordinates; Equinox J" 
+       << " Initial data (geocentric ecliptic coordinates; Equinox J"
        << fixed << setprecision(2) << 100.0*T_eqx+2000.0 << ")" << endl
        << endl;
-  cout << "  Observation" 
+  cout << "  Observation"
        << setw(25) << "1" << setw(12) << "2" << setw(12) << "3" << endl;
   cout << "  Julian Date                 ";
-  for (i=0;i<=2;i++) { cout << setw(12) << Mjd0[i]+2400000.5; }; 
+  for (i=0;i<=2;i++) { cout << setw(12) << Mjd0[i]+2400000.5; };
   cout << endl;
   cout << "  Solar longitude [deg]       " << setprecision(4);
-  for (i=0;i<=2;i++) { cout << setw(12) << Deg*(R_Sun[i][phi]); }; 
+  for (i=0;i<=2;i++) { cout << setw(12) << Deg*(R_Sun[i][phi]); };
   cout << endl;
   cout << "  Planet/Comet longitude [deg]";
-  for (i=0;i<=2;i++) { cout << setw(12) << Deg*((e[i])[phi]); }; 
+  for (i=0;i<=2;i++) { cout << setw(12) << Deg*((e[i])[phi]); };
   cout << endl;
   cout << "  Planet/Comet latitude [deg] ";
-  for (i=0;i<=2;i++) { cout << setw(12) << Deg*((e[i])[theta]); }; 
+  for (i=0;i<=2;i++) { cout << setw(12) << Deg*((e[i])[theta]); };
   cout << endl;
 
 }
@@ -146,24 +143,24 @@ void DumpElem ( double Mjd_p, double q, double e, double i,
                 double Omega, double omega, double T_eqx )
 {
   cout << endl
-       << " Orbital elements (Equinox J" 
+       << " Orbital elements (Equinox J"
        << fixed << setprecision(2) << 100.0*T_eqx+2000.0 << ")" << endl
        << endl
-       << "  Perihelion date      tp       " 
-       << setprecision(3) << DateTime(Mjd_p,DDd) << "  (JD " 
+       << "  Perihelion date      tp       "
+       << setprecision(3) << DateTime(Mjd_p,DDd) << "  (JD "
        << setprecision(3) << setw(11) << Mjd_p+2400000.5 << ")" << endl
-       << "  Perihelion distance  q [AU] " 
+       << "  Perihelion distance  q [AU] "
        << setprecision(6) << setw(12)  << q << endl
-       << "  Semi-major axis      a [AU] " 
+       << "  Semi-major axis      a [AU] "
        << setprecision(6) << setw(12)  << q/(1.0-e) << endl
-       << "  Eccentricity         e      " 
+       << "  Eccentricity         e      "
        << setprecision(6) << setw(12) << e << endl
-       << "  Inclination          i      " 
+       << "  Inclination          i      "
        << setprecision(4) << setw(10) << Deg*i << " deg" << endl
-       << "  Ascending node       Omega  " 
+       << "  Ascending node       Omega  "
        << setprecision(4) << setw(10) << Deg*Omega << " deg" << endl
-       << "  Long. of perihelion  pi     " 
-       << setprecision(4) << setw(10) 
+       << "  Long. of perihelion  pi     "
+       << setprecision(4) << setw(10)
        << Deg*Modulo(Omega+omega,2*pi) << " deg" << endl
        << "  Arg. of perihelion   omega  "
        << setprecision(4) << setw(10) << Deg*omega << " deg" << endl;
@@ -185,8 +182,8 @@ void DumpElem ( double Mjd_p, double q, double e, double i,
 //   tau[]    Scaled time differences
 //
 //------------------------------------------------------------------------------
-void Retard ( const double Mjd0[], const double rho[], 
-              double Mjd[], double tau[] ) 
+void Retard ( const double Mjd0[], const double rho[],
+              double Mjd[], double tau[] )
 {
   for (int i=0;i<=2;i++)  Mjd[i] = Mjd0[i] - rho[i]/c_light;
 
@@ -198,7 +195,7 @@ void Retard ( const double Mjd0[], const double rho[],
 
 //------------------------------------------------------------------------------
 //
-// r1: Auxiliary function r1(rho) = (sigma/(rho_0-rho))^(1/3) of the 
+// r1: Auxiliary function r1(rho) = (sigma/(rho_0-rho))^(1/3) of the
 //     Gauss-Lagrangian equation
 //
 // Input:
@@ -209,7 +206,7 @@ void Retard ( const double Mjd0[], const double rho[],
 //
 // <return>:
 //
-//   r1       Heliocentric distance 
+//   r1       Heliocentric distance
 //
 //------------------------------------------------------------------------------
 double r1 (double sigma, double rho_0, double rho)
@@ -231,7 +228,7 @@ double r1 (double sigma, double rho_0, double rho)
 //
 // <return>:
 //
-//   r2       Heliocentric distance 
+//   r2       Heliocentric distance
 //
 //------------------------------------------------------------------------------
 double r2 (double gamma, double R, double rho)
@@ -243,7 +240,7 @@ double r2 (double gamma, double R, double rho)
 
 //------------------------------------------------------------------------------
 //
-// BiSect: Solution of the Gauss-Lagrangian equation (r1(rho)=r2(rho)) 
+// BiSect: Solution of the Gauss-Lagrangian equation (r1(rho)=r2(rho))
 //         using bisection in a given interval
 //
 // Input:
@@ -261,12 +258,12 @@ double r2 (double gamma, double R, double rho)
 //
 // Note:
 //
-//   rho_1 and rho_2 may themselves be roots of the Gauss-Lagrangian 
+//   rho_1 and rho_2 may themselves be roots of the Gauss-Lagrangian
 //   equation provided that an independent root rho exists within the
 //   interval ]min(rho_1,rho_2), max(rho_1,rho_2)[ and that r1<=r2 between
-//   rho_1 and rho and r1>=r2 between rho and rho_2. This may imply that 
+//   rho_1 and rho and r1>=r2 between rho and rho_2. This may imply that
 //   rho_2 < rho_1!
-//  
+//
 //------------------------------------------------------------------------------
 void BiSect ( double gamma, double R, double rho_0, double sigma,
               double rho_1, double rho_2, double& rho )
@@ -275,8 +272,8 @@ void BiSect ( double gamma, double R, double rho_0, double sigma,
   // Constants
   //
   const double eps = 1.0e-9;
-  
-  
+
+
   //
   // Variables
   //
@@ -284,7 +281,7 @@ void BiSect ( double gamma, double R, double rho_0, double sigma,
 
 
   do {
-    rho = (rho_1+rho_2)/2.0; 
+    rho = (rho_1+rho_2)/2.0;
     f = r1(sigma,rho_0,rho) - r2(gamma,R,rho);
     if (f>0.0) rho_2=rho; else rho_1=rho;
   }
@@ -294,7 +291,7 @@ void BiSect ( double gamma, double R, double rho_0, double sigma,
 
 //------------------------------------------------------------------------------
 //
-// Newton: Solution of the Gauss-Lagrangian equation (r1(rho)=r2(rho)) 
+// Newton: Solution of the Gauss-Lagrangian equation (r1(rho)=r2(rho))
 //         using Newton's iteration
 //
 // Input:
@@ -309,12 +306,12 @@ void BiSect ( double gamma, double R, double rho_0, double sigma,
 //
 // Output:
 //
-//   rho        Solution      
-//   Abort      Status code 
+//   rho        Solution
+//   Abort      Status code
 //
 // Note:
 //
-//   The Newton iteration is continued as long as monotonic convergence to 
+//   The Newton iteration is continued as long as monotonic convergence to
 //   a solution is assured. Otherwise the abort flag is set.
 //
 //------------------------------------------------------------------------------
@@ -326,56 +323,56 @@ void Newton ( double gamma, double R, double rho_0, double sigma,
   //
   const double eps = 1.0e-8;
   const double s   = ( (sigma>0.0)? +1.0 : -1.0 );  // Sign of sigma
-  
+
 
   //
   // Variables
   //
   double r_a, r_b;    // Auxiliary quantities (heliocentric distance)
   double f, df, d2f;  // Value of Gauss-Lagrange function and derivatives
-  
+
 
   // Initialization
   f=0.0; df=1.0; Abort=true; rho=rho_start;
-  
-  
+
+
   // Newton iteration
   while (true) {
-    
-    // Check for improper initial conditions 
+
+    // Check for improper initial conditions
     if ( (s*(rho-gamma*R)<0.0) || (s*(rho-rho_0)>=0.0) ) break;
-    
+
     // Components of Gauss-Lagrange function
-    r_a = r1(sigma, rho_0, rho); 
-    r_b = r2(gamma, R, rho); 
-    
+    r_a = r1(sigma, rho_0, rho);
+    r_b = r2(gamma, R, rho);
+
     // Gauss-Lagrange function and derivatives
     f   = r_a-r_b;
     df  = pow(r_a,4)/(3.0*sigma) - (rho-gamma*R)/r_b;
-    d2f = 4.0*pow(r_a,7) / (9.0*sigma*sigma) 
+    d2f = 4.0*pow(r_a,7) / (9.0*sigma*sigma)
           - R*R*(1.0-gamma*gamma)/pow(r_b,3);
-    
+
     // Check for success and/or abort
     if (fabs(f)<eps) {Abort=false; break;};
-    
+
     // Check for abort condition based on gradient and curvature
     if ( (s*df<=0.0) || (f*d2f<=0.0) )  break;
-    
-    rho-= f/df; // Update 
+
+    rho-= f/df; // Update
   };
 }
 
 
 //------------------------------------------------------------------------------
 //
-// SolveGL: Finds the (up to three) solutions of the Gauss-Lagrangian 
-//          equation. Only positive solutions are returned. 
+// SolveGL: Finds the (up to three) solutions of the Gauss-Lagrangian
+//          equation. Only positive solutions are returned.
 //
 // Input:
-//  
+//
 //   gamma      Cosine of elongation from the Sun at time of 2nd observation
 //   R          Earth-Sun distance at time of 2nd observation
-//   rho_0      0th-order approximation of geocentric distance 
+//   rho_0      0th-order approximation of geocentric distance
 //   sigma      Auxiliary quantity
 //
 // Output:
@@ -395,15 +392,15 @@ void SolveGL ( double gamma, double R, double rho_0, double sigma,
   const double rho_min = 0.01;                    // Threshold for solutions
                                                   // of Gauss-Lagr. Eqn. [AU]
   const double s = ( (sigma>0.0)? +1.0 : -1.0 );  // Sign of sigma
-  
+
 
   //
   // Variables
   //
   double rho_d, rho_e, h;
-  bool   Abort_a, Abort_c;  // Flag for aborted Newton iteration 
+  bool   Abort_a, Abort_c;  // Flag for aborted Newton iteration
                             // of solutions rho_a and rho_b
- 
+
   // Initialization
   rho_a = rho_b = rho_c = 0.0;
 
@@ -414,37 +411,37 @@ void SolveGL ( double gamma, double R, double rho_0, double sigma,
     // Single solution within [rho_d,rho_e]
     rho_d = rho_0 - s*pow(fabs(sigma),1.0/4.0);
     rho_e = rho_0 - sigma/pow(fabs(gamma*R-rho_d)+R,3);
-    BiSect ( gamma,R,rho_0,sigma, rho_d,rho_e, rho_a ); 
+    BiSect ( gamma,R,rho_0,sigma, rho_d,rho_e, rho_a );
     n = 1;
   }
   else {
 
     // Triple solution possible
     // Locate root (c)
-    if ( r1(sigma,rho_0,gamma*R) >= r2(gamma,R,gamma*R) )  { 
+    if ( r1(sigma,rho_0,gamma*R) >= r2(gamma,R,gamma*R) )  {
       rho_d = gamma*R-s*pow(sigma/(rho_0-gamma*R),1.0/3.0);
-      BiSect ( gamma,R,rho_0,sigma, rho_d,gamma*R,rho_c ); 
+      BiSect ( gamma,R,rho_0,sigma, rho_d,gamma*R,rho_c );
       Abort_c=false;
     }
     else Newton (gamma,R,rho_0,sigma, gamma*R,rho_c,Abort_c);
-    
+
     // Locate root (a)
     rho_d = rho_0 - sigma/pow(fabs(rho_0-gamma*R)+R,3);
     Newton ( gamma,R,rho_0,sigma, rho_d,rho_a,Abort_a );
-    
+
     // Locate root (b)
     if (Abort_a||Abort_c) {
       n=1; if (Abort_a) rho_a=rho_c;
     }
     else {
       n=3;
-      BiSect ( gamma,R,rho_0,sigma, rho_a,rho_c,rho_b ); 
+      BiSect ( gamma,R,rho_0,sigma, rho_a,rho_c,rho_b );
       // Sort solutions in ascending order
       if (rho_a>rho_b) {h=rho_a; rho_a=rho_c; rho_c=h;};
     };
   };
-  
-  
+
+
   // Cyclic shift and elimination of negative and near-Earth solutions
   while ( ((rho_a<rho_min) && (n>1)) || (n==3) ){
     n--; h=rho_a; rho_a=rho_b; rho_b=rho_c; rho_c=h;
@@ -454,12 +451,12 @@ void SolveGL ( double gamma, double R, double rho_0, double sigma,
 
 //------------------------------------------------------------------------------
 //
-// Select: Selection of a single solution rho of the Gauss-Lagrangian 
+// Select: Selection of a single solution rho of the Gauss-Lagrangian
 //         equation
 //
 // Input:
-//   
-//   rho_a    First solution 
+//
+//   rho_a    First solution
 //   rho_b    Second solution
 //   rho_c    Third solution
 //   n_sol    Total number of solutions
@@ -472,18 +469,18 @@ double Select ( double rho_a, double rho_b, double rho_c,
                 int n_sol, int n )
 {
   if ( (n<1) || (n_sol<n) ) {
-    cerr << " Error in Select: n = " << setw(2) << n << " n_sol = " 
+    cerr << " Error in Select: n = " << setw(2) << n << " n_sol = "
          << setw(2) << n_sol << endl;
-    exit(1);
+    return 1;
   }
   else
     switch(n) {
-      case 1: return rho_a; 
-      case 2: return rho_b; 
+      case 1: return rho_a;
+      case 2: return rho_b;
       case 3: return rho_c;
     };
   return 0.0;
-}                
+}
 
 
 //------------------------------------------------------------------------------
@@ -498,7 +495,7 @@ double Select ( double rho_a, double rho_b, double rho_c,
 //
 // Output:
 //
-//   N_run     Number of current run (=selected number of solution of 
+//   N_run     Number of current run (=selected number of solution of
 //             the Gauss-Lagrangian equation)
 //   N_sol     Total number of solutions of the Gauss-Lagrangian equation
 //   Mjd_p     Modified Julian Date of perihelion passage
@@ -510,8 +507,8 @@ double Select ( double rho_a, double rho_b, double rho_c,
 //
 //------------------------------------------------------------------------------
 void GaussMethod ( const Vec3D R_Sun[], const Vec3D e[], const double Mjd0[],
-                   int& N_run, int& N_sol, 
-                   double& Mjd_p, double& q, double& ecc, 
+                   int& N_run, int& N_sol,
+                   double& Mjd_p, double& q, double& ecc,
                    double& inc, double& Omega, double& omega )
 {
   //
@@ -533,15 +530,15 @@ void GaussMethod ( const Vec3D R_Sun[], const Vec3D e[], const double Mjd0[],
   Vec3D   d[3],r[3];
   double  D[3][3];
 
-     
+
   // Matrix D and determinant Det
-  d[0] = Cross(e[1],e[2]);  
-  d[1] = Cross(e[2],e[0]);  
-  d[2] = Cross(e[0],e[1]);  
+  d[0] = Cross(e[1],e[2]);
+  d[1] = Cross(e[2],e[0]);
+  d[2] = Cross(e[0],e[1]);
 
   for (i=0;i<=2;i++) for (j=0;j<=2;j++)  D[i][j] = Dot(d[i],R_Sun[j]);
 
-  Det = Dot(e[2],d[2]);  
+  Det = Dot(e[2],d[2]);
 
 
   // Direction cosine of observation unit vector with respect to the Sun
@@ -562,18 +559,18 @@ void GaussMethod ( const Vec3D R_Sun[], const Vec3D e[], const double Mjd0[],
   cout << endl << endl
        << " Solution No." << setw(1) << N_run << endl << endl
        << " Iteration of the geocentric distances " << endl
-       << " Solutions (rho_2 in [AU]) of the Gauss-Lagrangian equation" 
+       << " Solutions (rho_2 in [AU]) of the Gauss-Lagrangian equation"
        << endl << endl;
   cout << "  Iteration             Number   1st Sol.    2nd Sol.    3rd Sol."
        << endl;
 
-  
+
   // Iterative improvement of tau[i] and mu[i]
   rho[1] = 0.0;
   iterat = 0;
 
   do {
-   
+
     // Save previous value and increment iteration count
     rho_old = rho[1];
     iterat++;
@@ -583,22 +580,22 @@ void GaussMethod ( const Vec3D R_Sun[], const Vec3D e[], const double Mjd0[],
     // from the Gauss-Lagrangian equation
     n0[0] = tau[0]/tau[1];
     n0[2] = tau[2]/tau[1];
-    
-    L = - ( n0[0]*D[1][0]-D[1][1]+n0[2]*D[1][2] ) / Det; 
-    l =   ( mu[0]*D[1][0]    +    mu[2]*D[1][2] ) / Det; 
 
-    SolveGL (gamma,Norm(R_Sun[1]),L,l,rho_min,rho_mean,rho_max,N_sol); 
+    L = - ( n0[0]*D[1][0]-D[1][1]+n0[2]*D[1][2] ) / Det;
+    l =   ( mu[0]*D[1][0]    +    mu[2]*D[1][2] ) / Det;
+
+    SolveGL (gamma,Norm(R_Sun[1]),L,l,rho_min,rho_mean,rho_max,N_sol);
 
     rho[1] = Select ( rho_min,rho_mean,rho_max, N_sol,N_run );
     r[1]   = rho[1]*e[1] - R_Sun[1];
 
     cout << setw(4) << iterat << setw(23) << N_sol << fixed << setprecision(8)
-         << setw(15) << rho_min << setw(12) << rho_mean 
+         << setw(15) << rho_min << setw(12) << rho_mean
          << setw(12) << rho_max << endl;
 
-    // Compute n1 and n3 
-    n[0] = n0[0] + mu[0]/pow(Norm(r[1]),3); 
-    n[2] = n0[2] + mu[2]/pow(Norm(r[1]),3); 
+    // Compute n1 and n3
+    n[0] = n0[0] + mu[0]/pow(Norm(r[1]),3);
+    n[2] = n0[2] + mu[2]/pow(Norm(r[1]),3);
 
 
     // Geocentric distances rho_1 and rho_3 from n_1 and n_3
@@ -611,7 +608,7 @@ void GaussMethod ( const Vec3D R_Sun[], const Vec3D e[], const double Mjd0[],
 
 
     // Heliocentric coordinate vector
-    for (i=0;i<=2;i++) 
+    for (i=0;i<=2;i++)
       r[i] = rho[i]*e[i] - R_Sun[i];
 
 
@@ -619,13 +616,13 @@ void GaussMethod ( const Vec3D R_Sun[], const Vec3D e[], const double Mjd0[],
     eta[0] = FindEta ( r[1],r[2], tau[0] );
     eta[1] = FindEta ( r[0],r[2], tau[1] );
     eta[2] = FindEta ( r[0],r[1], tau[2] );
-    
+
 
     // Improved values of mu_1, mu_3
     mu[0] = ( eta[1]/eta[0] - 1.0 ) * (tau[0]/tau[1]) * pow(Norm(r[1]),3);
     mu[2] = ( eta[1]/eta[2] - 1.0 ) * (tau[2]/tau[1]) * pow(Norm(r[1]),3);
 
-    if (maxit<=iterat) { 
+    if (maxit<=iterat) {
       cerr << "   (Convergence problems; iteration stopped after "
            << setw(2) << maxit << " steps)"
            << endl;
@@ -636,21 +633,21 @@ void GaussMethod ( const Vec3D R_Sun[], const Vec3D e[], const double Mjd0[],
 
 
   cout << endl
-       << " Geocentric and heliocentric distances" << endl 
+       << " Geocentric and heliocentric distances" << endl
        << endl;
-  cout << "  Observation" 
+  cout << "  Observation"
        << setw(25) << "1" << setw(12) << "2" << setw(12) << "3" << endl;
   cout << "  rho [AU]" << setw(20) << " " << fixed << setprecision(8);
   for (i=0;i<=2;i++) cout << setw(12) << rho[i]; cout << endl;
   cout << "  r [AU]" << setw(22) << " " << fixed << setprecision(8);
   for (i=0;i<=2;i++) cout << setw(12) << Norm(r[i]); cout << endl;
-       
+
 
   // Derive orbital elements from first and third observation
-  Elements ( GM_Sun, Mjd[0], Mjd[2], r[0], r[2], 
+  Elements ( GM_Sun, Mjd[0], Mjd[2], r[0], r[2],
              Mjd_p, q, ecc, inc, Omega, omega );
 }
-             
+
 
 //------------------------------------------------------------------------------
 //
@@ -658,7 +655,7 @@ void GaussMethod ( const Vec3D R_Sun[], const Vec3D e[], const double Mjd0[],
 //
 //------------------------------------------------------------------------------
 
-void main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
   //
   // Variables
@@ -675,53 +672,53 @@ void main(int argc, char* argv[])
   bool      FoundOutputfile = false;
   ofstream  OutFile;
 
-  
+
   // Title
   cout << endl
-       << "      GAUSS: orbit determination from three observations " 
+       << "      GAUSS: orbit determination from three observations "
        << endl
-       << "             (c) 1999 Oliver Montenbruck, Thomas Pfleger " 
+       << "             (c) 1999 Oliver Montenbruck, Thomas Pfleger "
        << endl << endl;
 
 
   // Find input and optional output files
   GetFilenames( argc, argv, "Gauss.dat", InputFile, FoundInputfile,
                 OutputFile, FoundOutputfile );
-  
+
   // Terminate program if input file could not be found
   if (!FoundInputfile) {
     cerr << " Terminating program." << endl;
-    exit(-1);
+    return -1;
   }
 
-  
+
   // Redirect output if output file shall be created
   if (FoundOutputfile) {
     OutFile.open(OutputFile);
-    if (OutFile.is_open())
-      cout = OutFile;
+    if (OutFile.is_open());
+      //cout = OutFile;
   }
 
-  
+
   // Initialization
   Start ( InputFile, Header, R_Sun, e, Mjd0, T_eqx );
 
-  
-  // Handle all solutions 
+
+  // Handle all solutions
   N_run = 0;
   N_sol = 1;
-  
+
   do {
-  
+
     N_run++;
-  
-    // Determine the orbit using Gauss's method for solution N_run of the 
+
+    // Determine the orbit using Gauss's method for solution N_run of the
     // Gauss-Lagrangian equation
     GaussMethod ( R_Sun, e, Mjd0, N_run, N_sol, Mjd_p,q,ecc,inc,Omega,omega );
-  
+
     // Print orbital elements
     DumpElem ( Mjd_p,q,ecc,inc,Omega,omega, T_eqx );
-  
+
   }
   while (N_run<N_sol);
 

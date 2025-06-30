@@ -1,17 +1,17 @@
 //------------------------------------------------------------------------------
 //
 // File:       PPMbin.cpp
-// 
+//
 // Purpose:    Conversion of the PPM star catalogue (ASCII->binary)
 //
 // Notes:
 //
-//   This software is protected by national and international copyright. 
-//   Any unauthorized use, reproduction or modificaton is unlawful and 
-//   will be prosecuted. Commercial and non-private application of the 
+//   This software is protected by national and international copyright.
+//   Any unauthorized use, reproduction or modificaton is unlawful and
+//   will be prosecuted. Commercial and non-private application of the
 //   software in any form is strictly prohibited unless otherwise granted
 //   by the authors.
-//   
+//
 // (c) 1999 Oliver Montenbruck, Thomas Pfleger
 //
 //------------------------------------------------------------------------------
@@ -36,7 +36,7 @@ using namespace std;
 // Main program
 //
 //------------------------------------------------------------------------------
-void main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
 
   // Variables
@@ -47,7 +47,7 @@ void main(int argc, char* argv[])
 
   long      PPM;        // PPM number
   char      DM[10];     // Bonner/Cordoba Durchmusterung number
-  float     mag;        // Brightness 
+  float     mag;        // Brightness
   char      Sp[3];      // Spectral type
   int       h,m;        // Right ascension (hours,minutes)
   double    s;          // Right ascension (seconds)
@@ -55,7 +55,7 @@ void main(int argc, char* argv[])
   int       deg,min;    // Declination (degrees, minutes)
   double    sec;        // Declination (seconds)
   double    RA,Dec;     // Right ascesnion, declination
-  float     pmRA,pmDec; // Proper motion 
+  float     pmRA,pmDec; // Proper motion
 
   struct {
     long   PPM;
@@ -67,35 +67,35 @@ void main(int argc, char* argv[])
   cout << endl
        << "     PPMbin: Conversion of the PPM Catalogue (ASCII->binary) "
        << endl
-       << "          (c) 1999 Oliver Montenbruck, Thomas Pfleger       " 
+       << "          (c) 1999 Oliver Montenbruck, Thomas Pfleger       "
        << endl << endl;
 
   // Open input file for reading
-  if (argc>1) 
+  if (argc>1)
     inp.open(argv[1]);
   else {
     inp.open("PPM.dat");
   };
   if (!inp) {
     cerr << " Abort. Input file not found." << endl;
-    exit(1);
+    return 1;
   }
 
   // Open output file
-  if (argc>2) 
+  if (argc>2)
     out.open(argv[2],ios::binary|ios::out);
   else
     out.open("PPM.bin",ios::binary|ios::out);
   if (!out) {
     cerr << " Abort. Error while opening output file." << endl;
-    exit(1);
+    return 1;
   }
   cout << endl << " ";
-    
+
   // Read all stars
 
   count = 0;
-  
+
   while (true) {
 
     // Read one input line
@@ -125,14 +125,14 @@ void main(int argc, char* argv[])
     inp >> pmRA;             //  56- 62   Proper motion in RA [s/year]
     inp.ignore(1);           //  63       (empty)
     inp >> pmDec;            //  64- 69   Proper motion in Dec ["/year]
-    
-    inp.ignore(133,'\n'); 
+
+    inp.ignore(133,'\n');
 
     if (inp.fail()) break;
 
 
     // Coordinates epoch J2000  [rad]
-    
+
     RA  = Rad*15.0*Ddd(h,m,s);
     Dec = Rad*Ddd(deg,min,sec); if (sign=='-') Dec = -Dec;
 
@@ -150,7 +150,7 @@ void main(int argc, char* argv[])
     Data.pmDec = pmDec;
     Data.mag   = mag;
 
-    out.write( (char *) &Data, sizeof Data ); 
+    out.write( (char *) &Data, sizeof Data );
     count++;
 
     if ( PPM % 10000 == 0 ) cout << "*"; cout.flush();
@@ -158,8 +158,8 @@ void main(int argc, char* argv[])
   };
 
   out.close();
-  
+
   cout << endl << endl
        << " " << count << " stars processed" << endl;
-  
+
 }

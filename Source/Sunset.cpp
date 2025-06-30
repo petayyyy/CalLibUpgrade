@@ -6,12 +6,12 @@
 //
 // Notes:
 //
-//   This software is protected by national and international copyright. 
-//   Any unauthorized use, reproduction or modificaton is unlawful and 
-//   will be prosecuted. Commercial and non-private application of the 
+//   This software is protected by national and international copyright.
+//   Any unauthorized use, reproduction or modificaton is unlawful and
+//   will be prosecuted. Commercial and non-private application of the
 //   software in any form is strictly prohibited unless otherwise granted
 //   by the authors.
-//   
+//
 // (c) 1999 Oliver Montenbruck, Thomas Pfleger
 //
 //------------------------------------------------------------------------------
@@ -37,10 +37,10 @@ using namespace std;
 
 //
 // Types
-// 
+//
 
 // Events to search for
-enum enEvent { 
+enum enEvent {
   Moon,      // indicates moonrise or moonset
   Sun,       // indicates sunrise or sunset
   CivilTwi,  // indicates Civil twilight
@@ -70,11 +70,11 @@ double SinAlt ( enEvent Event, double MJD0, double Hour,
 {
   //
   // Variables
-  //  
+  //
   double  MJD, T, RA, Dec, tau;
-  
 
-  MJD = MJD0 + Hour/24.0;         
+
+  MJD = MJD0 + Hour/24.0;
   T   = (MJD-51544.5)/36525.0;
 
   if ( Event == Moon )
@@ -83,7 +83,7 @@ double SinAlt ( enEvent Event, double MJD0, double Hour,
     MiniSun ( T, RA, Dec );
 
   tau = GMST(MJD) + lambda - RA;
-  
+
   return ( Sphi*sin(Dec)+Cphi*cos(Dec)*cos(tau) );
 }
 
@@ -106,7 +106,7 @@ void GetInput ( double& MJD, double& lambda,
 {
   //
   // Variables
-  //  
+  //
   int  year, month, day;
   char cTwilight;
 
@@ -123,11 +123,11 @@ void GetInput ( double& MJD, double& lambda,
   cin  >> zone; cin.ignore(81,'\n');
   cout << " Twilight definition (c, n or a)       ... ";
   cin  >> cTwilight; cin.ignore(81,'\n');
-  
+
   switch (tolower(cTwilight)) {
     case 'c': twilight = CivilTwi; break;
     case 'a': twilight = AstroTwi; break;
-    case 'n': 
+    case 'n':
     default:  twilight = NautiTwi;
   }
 
@@ -159,8 +159,8 @@ void GetInput ( double& MJD, double& lambda,
 //   above     Sun or Moon is circumpolar
 //
 //------------------------------------------------------------------------------
-void FindEvents ( enEvent Event, double MJD0h, double lambda, double phi,              
-                  double& LT_Rise, double& LT_Set, 
+void FindEvents ( enEvent Event, double MJD0h, double lambda, double phi,
+                  double& LT_Rise, double& LT_Set,
                   bool& rises, bool& sets, bool& above )
 {
   //
@@ -168,17 +168,17 @@ void FindEvents ( enEvent Event, double MJD0h, double lambda, double phi,
   //
   static const double sinh0[5] = {
 
-    sin(Rad*( +8.0/60.0)), // Moonrise              at h= +8' 
+    sin(Rad*( +8.0/60.0)), // Moonrise              at h= +8'
     sin(Rad*(-50.0/60.0)), // Sunrise               at h=-50'
     sin(Rad*(   - 6.0  )), // Civil twilight        at h=-6 deg
     sin(Rad*(   -12.0  )), // Nautical twilight     at h=-12deg
     sin(Rad*(   -18.0  )), // Astronomical twilight at h=-18deg
   };
-  
+
   const double Cphi = cos(phi);
   const double Sphi = sin(phi);
 
-  
+
   //
   // Variables
   //
@@ -186,8 +186,8 @@ void FindEvents ( enEvent Event, double MJD0h, double lambda, double phi,
   double y_minus, y_0, y_plus;
   double xe, ye, root1, root2;
   int nRoot;
-  
-  
+
+
   // Initialize for search
   y_minus = SinAlt(Event, MJD0h, hour-1.0, lambda, Cphi, Sphi) - sinh0[Event];
 
@@ -195,7 +195,7 @@ void FindEvents ( enEvent Event, double MJD0h, double lambda, double phi,
   rises = false;
   sets  = false;
 
-  
+
   // loop over search intervals from [0h-2h] to [22h-24h]
   do {
 
@@ -206,11 +206,11 @@ void FindEvents ( enEvent Event, double MJD0h, double lambda, double phi,
     Quad ( y_minus, y_0, y_plus, xe, ye, root1, root2, nRoot );
 
     if ( nRoot==1 ) {
-      if ( y_minus < 0.0 ) 
+      if ( y_minus < 0.0 )
         { LT_Rise = hour+root1;  rises = true; }
-      else  
+      else
         { LT_Set  = hour+root1;  sets  = true; }
-    }                   
+    }
 
     if ( nRoot == 2 ) {
       if ( ye < 0.0 )
@@ -218,10 +218,10 @@ void FindEvents ( enEvent Event, double MJD0h, double lambda, double phi,
       else
         { LT_Rise = hour+root1;  LT_Set = hour+root2; }
       rises = true; sets = true;
-    }          
-    
+    }
+
     y_minus = y_plus;     // prepare for next interval
-    hour += 2.0;         
+    hour += 2.0;
 
   }
   while ( !( ( hour == 25.0 ) || ( rises && sets ) ) );
@@ -233,7 +233,7 @@ void FindEvents ( enEvent Event, double MJD0h, double lambda, double phi,
 // Main program
 //
 //------------------------------------------------------------------------------
-void main()
+int main()
 {
   //
   // Variables
@@ -244,7 +244,7 @@ void main()
   double   date, start_date, LT_Rise, LT_Set;
   enEvent  Event, Twilight;
 
-  
+
   // Title
   cout << endl
        << "      SUNSET: solar and lunar rising and setting times  " << endl
@@ -254,7 +254,7 @@ void main()
 
   // Prompt user for input
   GetInput (start_date, lambda, phi, zone, Twilight );
-  
+
 
   // Header
   cout << endl
@@ -267,10 +267,10 @@ void main()
 
   // loop over 10 subsequent days
   for (day=0; day<10; day++) {
-    
+
     // current date
-    date = start_date + day; 
-    cout << " " << DateTime(date+zone) << "  ";        
+    date = start_date + day;
+    cout << " " << DateTime(date+zone) << "  ";
 
     // loop over cases (Moon, Sun, Twilight)
     for (iEvent=0; iEvent<=2; iEvent++)  {
@@ -282,7 +282,7 @@ void main()
       FindEvents ( Event, date, lambda, phi,
                    LT_Rise, LT_Set, rise, sett, above );
 
-      
+
       // Output
       if ( rise || sett )  {
         if ( rise )
@@ -294,17 +294,17 @@ void main()
         else
           cout << "   ----- ";
       }
-      else 
+      else
         if ( above ) {
           if ( Event >= CivilTwi )
             cout << "    always bright ";
-          else 
+          else
             cout << "   always visible ";
         }
         else {
           if ( Event >= CivilTwi )
             cout << "     always dark  ";
-          else 
+          else
             cout << "  always invisible";
         }
 
@@ -313,11 +313,11 @@ void main()
     cout << endl;
   }
 
-  
+
   // Trailer
   cout << endl;
 
   cout << " all times in local time (=UT"
-       << showpos << 24.0*zone << noshowpos << "h)" 
+       << showpos << 24.0*zone << noshowpos << "h)"
        << endl;
 }

@@ -24,6 +24,8 @@
 //------------------------------------------------------------------------------
 
 #include <cmath>
+#include <algorithm>  // для std::max
+
 
 #ifdef __GNUC__   // GNU C++ adaptation
 #include <float.h>
@@ -54,11 +56,11 @@ namespace // Unnamed namespace
 
   // Auxiliary functions
 
-  template <class T>
-  T max (T a, T b) { return (a>b) ? a : b; };
+  // template <class T>
+  // T max (T a, T b) { return (a>b) ? a : b; };
 
-  template <class T>
-  T min (T a, T b) { return (a<b) ? a : b; };
+  // template <class T>
+  // T min (T a, T b) { return (a<b) ? a : b; };
 
 
   // sign: returns absolute value of a with sign of b

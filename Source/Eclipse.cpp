@@ -6,12 +6,12 @@
 //
 // Notes:
 //
-//   This software is protected by national and international copyright. 
-//   Any unauthorized use, reproduction or modificaton is unlawful and 
-//   will be prosecuted. Commercial and non-private application of the 
+//   This software is protected by national and international copyright.
+//   Any unauthorized use, reproduction or modificaton is unlawful and
+//   will be prosecuted. Commercial and non-private application of the
 //   software in any form is strictly prohibited unless otherwise granted
 //   by the authors.
-//   
+//
 // (c) 1999 Oliver Montenbruck, Thomas Pfleger
 //
 //------------------------------------------------------------------------------
@@ -31,6 +31,8 @@
 #include "APC_Sun.h"
 #include "APC_Time.h"
 #include "APC_VecMat3D.h"
+
+#include<cstring>
 
 #ifdef __GNUC__  // GNU C++ Adaptations
 #include <memory>
@@ -86,13 +88,13 @@ void Intersect ( double T_ET,
   const double tau_Sun  = 8.32 / ( 1440.0*36525.0);    // 8.32 min  [cy]
   const double fac      = 0.996647;     // Ratio polar/equat. Earth radius
 
-  
+
   //
   // Variables
   //
   double r_MS,s0,Delta,r0,s;
   double D_penumbra;
-  Vec3D  r_Moon; 
+  Vec3D  r_Moon;
   Vec3D  r_Sun;
 
 
@@ -100,7 +102,7 @@ void Intersect ( double T_ET,
   // (solar coordinates corrected for light time)
   r_Moon = ChebMoonEqu.Value(T_ET);             // [km]
   r_Sun  = ChebSunEqu.Value (T_ET-tau_Sun)*AU;  // [km]
-  
+
   // Scale z-coordinate to compensate Earth flattening
   r_Moon = Vec3D ( r_Moon[x], r_Moon[y], r_Moon[z]/fac );
   r_Sun  = Vec3D ( r_Sun[x] , r_Sun[y] , r_Sun[z]/fac  );
@@ -119,35 +121,35 @@ void Intersect ( double T_ET,
   // Umbra and penumbra diameter on the fundamental plane
   D_umbra    = 2.0*((R_Sun-R_Moon)*(s0/r_MS)-R_Moon);
   D_penumbra = 2.0*((R_Sun-R_Moon)*(s0/r_MS)+R_Moon);
-  
+
   // Determine phase and shadow coordinates if required
   if (r0<R_Earth) {
 
     // Shadow axis intersects the Earth; total or annular eclipse
-     
+
     // Intersection of the shadow axis and the surface of the Earth
     s = s0-sqrt(Delta);
-    r = r_Moon + s*e;                
-    
+    r = r_Moon + s*e;
+
     // Re-scale z-component
-    r = Vec3D(r[x],r[y],fac*r[z]);   
-    
+    r = Vec3D(r[x],r[y],fac*r[z]);
+
     // Umbra diameter at the surface of the Earth
     D_umbra = 2.0*((R_Sun-R_Moon)*(s/r_MS)-R_Moon);
-    
-    Phase = ( (D_umbra>0.0)? annular : total );  
+
+    Phase = ( (D_umbra>0.0)? annular : total );
   }
   else {
 
     if ( r0 < R_Earth+0.5*fabs(D_umbra) ) {
       // Non-central eclipse
-      Phase = ( (D_umbra>0.0)? NonCenAnn : NonCenTot );  
+      Phase = ( (D_umbra>0.0)? NonCenAnn : NonCenTot );
     }
     else {
       // Partial or no eclipse
       Phase = ( (r0<R_Earth+0.5*fabs(D_penumbra))? partial : NoEclipse );
     };
-    
+
     r = Vec3D(); // Dummy value (Null vector)
   };
 
@@ -160,7 +162,7 @@ void Intersect ( double T_ET,
 //
 // Input:
 //
-//   MjdUT     Universal time as Modified Julian Date 
+//   MjdUT     Universal time as Modified Julian Date
 //   ET_UT     Difference of ephemeris time and universal time in [s]
 //
 // Output:
@@ -179,7 +181,7 @@ void Central ( double MjdUT, double ET_UT,
   //
   const double dt    = 0.1  / (1440.0*36525.0); // 0.1 min [cy]
   const double omega = pi2 * 1.002738*36525.0;  // [rad/cy]
-  
+
 
   //
   // Variables
@@ -188,20 +190,20 @@ void Central ( double MjdUT, double ET_UT,
   Vec3D     r,r_G,rr,dr;      // Shadow coordinates
   Vec3D     e,ee;             // Shadow axis
   double    D_umbra, DU;      // Umbra diameter
-  enPhase   Ph=NoEclipse;     // Phase 
-  double    w;                // Earth rotation angle                                       
+  enPhase   Ph=NoEclipse;     // Phase
+  double    w;                // Earth rotation angle
   double    drp;              // Shadow displacement
 
-  
+
   // Ephemeris Time
   T_ET = ( MjdUT + ET_UT/86400.0 - MJD_J2000 ) / 36525.0;
 
   // Intersection of shadow axis with the surface of the Earth
-  Intersect ( T_ET, r, e, D_umbra, Phase ); 
+  Intersect ( T_ET, r, e, D_umbra, Phase );
 
   // For central phase only: geogr. coordinates and duration of central phase
   Lambda = Phi = Durat = 0.0;
-  
+
   if ( Phase >= annular ) {
 
     // Geographic shadow coordinates
@@ -209,9 +211,9 @@ void Central ( double MjdUT, double ET_UT,
     Lambda = Modulo(r_G[phi]+pi,2*pi)-pi;      // East longitude
     Phi    = r_G[theta];                       // Geocentric latitude
     Phi    = Phi + 0.1924*Rad*sin(2*Phi);      // Geographic latitude
-    
+
     // Duration of central phase for this place
-   
+
     // (a) shadow coordinates at time T+dt (or T-dt)
     if (Ph<annular) {
       Intersect ( T_ET-dt, rr, ee, DU, Ph ); w = -dt*omega;
@@ -220,13 +222,13 @@ void Central ( double MjdUT, double ET_UT,
       Intersect ( T_ET+dt, rr, ee, DU, Ph ); w = +dt*omega;
     }
 
-    // (b) displacement dr of the shadow on Earth and 
+    // (b) displacement dr of the shadow on Earth and
     //     fraction drp perpendicular to the shadow axis
     dr  = Vec3D ( rr[x]-r[x]+w*r[y], rr[y]-r[y]-w*r[x], rr[z]-r[z] );
     drp = Norm ( dr - Dot(dr,e)*e );
-    
+
     Durat = (36525.0*1440.0)*dt * fabs(D_umbra) / drp;  // [min]
-  };  
+  };
 
 };
 
@@ -279,12 +281,12 @@ void GetInput(double& MjdStart, double& Step, double& MjdEnd, double& ET_UT)
   // Difference between ephemeris time and universal time
   ETminUT ( (MJD-MJD_J2000)/36525.0, ET_UT, valid );
   if ( valid ) {
-    cout << " Difference ET-UT (proposal:" << fixed << setw(6) 
+    cout << " Difference ET-UT (proposal:" << fixed << setw(6)
          << setprecision (1) << ET_UT << " sec) ... ";
     cin >> ET_UT; cin.ignore(81,'\n');
   }
   else {
-    cout << " Difference ET-UT (sec)" << setw(21) << right << "... "; 
+    cout << " Difference ET-UT (sec)" << setw(21) << right << "... ";
     cin >> ET_UT; cin.ignore(81,'\n');
   }
 }
@@ -295,7 +297,7 @@ void GetInput(double& MjdStart, double& Step, double& MjdEnd, double& ET_UT)
 // Main program
 //
 //------------------------------------------------------------------------------
-void main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
 
   //
   // Variables
@@ -306,7 +308,7 @@ void main(int argc, char* argv[]) {
   enPhase   Phase;
   char      OutputFile[APC_MaxFilename] = "";
   ofstream  OutFile;
-    
+
 
   // Title
   cout << endl
@@ -314,7 +316,7 @@ void main(int argc, char* argv[]) {
        << "          (c) 1999 Oliver Montenbruck, Thomas Pfleger     " << endl
        << endl;
 
-  
+
   // Prompt user for input
   GetInput ( MjdStart, Step, MjdEnd, ET_UT );
 
@@ -323,8 +325,8 @@ void main(int argc, char* argv[]) {
   if (argc==2) {
     strncpy(OutputFile, argv[1], APC_MaxFilename);
     OutFile.open(OutputFile);
-    if (OutFile.is_open())
-      cout = OutFile;
+    if (OutFile.is_open());
+//      cout = OutFile;
   }
 
 
@@ -337,11 +339,11 @@ void main(int argc, char* argv[]) {
   // Phase and central line of the eclipse
   MjdUT = MjdStart;
 
-  
+
   // Time loop
   while ( MjdUT < MjdEnd + Step/2 ) {
-  
-    // Phase and location of shadow point     
+
+    // Phase and location of shadow point
     Central ( MjdUT, ET_UT, Lambda, Phi, Durat, Phase );
 
     // Output
@@ -355,19 +357,19 @@ void main(int argc, char* argv[]) {
         cout << showpos
              << "      " << setw(6) << Angle(Deg*Phi,DMM)
              << "   "    << setw(7) << Angle(Deg*Lambda,DMM)
-             << noshowpos 
+             << noshowpos
              << fixed << setprecision(1) << setw(7) << Durat;
       };
-      
+
       switch(Phase) {
-      
+
         case partial  : cout << "   partial               "; break;
         case NonCenAnn: cout << "   annular (non-central) "; break;
         case NonCenTot: cout << "   total (non-central)   "; break;
         case annular  : cout << "   annular               "; break;
         case total    : cout << "   total                 ";
       };
-      
+
       cout << endl;
     };
 

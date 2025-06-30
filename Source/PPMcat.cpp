@@ -1,17 +1,17 @@
 //------------------------------------------------------------------------------
 //
 // File:       PPMcat.cpp
-// 
+//
 // Purpose:    Selection of stars from the PPM star catalogue
 //
 // Notes:
 //
-//   This software is protected by national and international copyright. 
-//   Any unauthorized use, reproduction or modificaton is unlawful and 
-//   will be prosecuted. Commercial and non-private application of the 
+//   This software is protected by national and international copyright.
+//   Any unauthorized use, reproduction or modificaton is unlawful and
+//   will be prosecuted. Commercial and non-private application of the
 //   software in any form is strictly prohibited unless otherwise granted
 //   by the authors.
-//   
+//
 // (c) 1999 Oliver Montenbruck, Thomas Pfleger
 //
 //------------------------------------------------------------------------------
@@ -48,7 +48,7 @@ void GetInp (double& RA_0, double& Dec_0, double& Radius, double& T_Epoch)
 {
   int     h;
   double  m,d,y;
-  
+
   cout << endl
        << " Image centre" << endl;
   cout << "   Right ascension [hh mm.m] ... ";
@@ -66,22 +66,22 @@ void GetInp (double& RA_0, double& Dec_0, double& Radius, double& T_Epoch)
 // Main program
 //
 //------------------------------------------------------------------------------
-void main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
 
   // Variablen
 
   ifstream  inp;        // Input file
   ofstream  out;        // Output file
-  
+
   double    RA0,Dec0;   // Right ascension, declination [rad]
   double    r;          // Field of view radius [rad]
   double    T;          // Epoch
 
   long      PPM;        // PPM number
-  float     mag;        // Brightness 
+  float     mag;        // Brightness
   double    RA,Dec;     // Right ascension, declination
-  float     pmRA,pmDec; // Proper motion 
+  float     pmRA,pmDec; // Proper motion
   Vec3D     e,e0;       // Unit vectors
 
   struct {
@@ -94,18 +94,18 @@ void main(int argc, char* argv[])
   // Title
   cout << endl
        << "       PPMcat: Selection of stars from the PPM Catalogue " << endl
-       << "          (c) 1999 Oliver Montenbruck, Thomas Pfleger    " << endl 
+       << "          (c) 1999 Oliver Montenbruck, Thomas Pfleger    " << endl
        << endl;
 
-  // Open input file for reading 
-  if (argc>1) 
+  // Open input file for reading
+  if (argc>1)
     inp.open(argv[1],ios::binary|ios::in);
   else {
     inp.open("PPM.bin",ios::binary|ios::in);
   };
   if (!inp) {
     cerr << " Abort. Input file not found." << endl;
-    exit(1);
+    return 1;
   }
 
   //User input
@@ -115,20 +115,20 @@ void main(int argc, char* argv[])
   // Redirect output, if output file shall be written
   if (argc>2) {
     out.open(argv[2]);
-    if (out.is_open()) cout = out;
+    if (out.is_open()); //cout = out;
   }
 
-  // Header 
-  cout 
+  // Header
+  cout
    << endl
-   << " PPM Number       RA          Dec        PM(RA)  PM(Dec)   m   " 
+   << " PPM Number       RA          Dec        PM(RA)  PM(Dec)   m   "
    << endl
-   << "               h  m  s        o  '  \"     s/cy    \"/cy    mag  " 
+   << "               h  m  s        o  '  \"     s/cy    \"/cy    mag  "
    << endl;
-  
- 
+
+
   // Loop over all stars
- 
+
   while (true) {
 
     // Read one input line
@@ -147,10 +147,10 @@ void main(int argc, char* argv[])
 
     // Ouput of stars within the field of view
     if ( Dot(e,e0)>cos(r) ) {
-      cout << fixed 
-           << " PPM " << setw(6) << PPM << "  " 
+      cout << fixed
+           << " PPM " << setw(6) << PPM << "  "
            << setw(12) << setprecision(3) << Angle(Deg*RA/15.0,DMMSSs)
-           << "  " 
+           << "  "
            << showpos
            << setw(12) << setprecision(2) << Angle(Deg*Dec,DMMSSs)
            << setw(8) << setprecision(3) << Deg*pmRA *3600.0/15.0

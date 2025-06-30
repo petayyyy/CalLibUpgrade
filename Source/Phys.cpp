@@ -6,12 +6,12 @@
 //
 // Notes:
 //
-//   This software is protected by national and international copyright. 
-//   Any unauthorized use, reproduction or modificaton is unlawful and 
-//   will be prosecuted. Commercial and non-private application of the 
+//   This software is protected by national and international copyright.
+//   Any unauthorized use, reproduction or modificaton is unlawful and
+//   will be prosecuted. Commercial and non-private application of the
 //   software in any form is strictly prohibited unless otherwise granted
 //   by the authors.
-//   
+//
 // (c) 1999 Oliver Montenbruck, Thomas Pfleger
 //
 //------------------------------------------------------------------------------
@@ -42,18 +42,18 @@ using namespace std;
 // Main program
 //
 //------------------------------------------------------------------------------
-void main()
+int main()
 {
   //
   // Constants
   //
-  
+
   // Body names
-  const char* Name[] = 
+  const char* Name[] =
     { "Sun", "Mercury", "Venus", "Earth", "Mars",
       "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto" };
 
-  
+
   //
   // Variables
   //
@@ -63,9 +63,9 @@ void main()
   Vec3D         r, r_Earth, r_geoc;
   double        Delta;
   double        R_equ, D_equ, f;
-  Mat3D         E_I, E_II, E_III;         
-  Mat3D         P;                      
-  Vec3D         d; 
+  Mat3D         E_I, E_II, E_III;
+  Mat3D         P;
+  Vec3D         d;
   RotationType  Sense;
   double        long_I, long_II, long_III, lat_g, lat_c;
   double        long_Sun, latg_Sun, latc_Sun;
@@ -85,10 +85,10 @@ void main()
 
   T = (Mjd(year,month,day)+hour/24.0-MJD_J2000)/36525.0;
 
-  
+
   // Header
   cout << endl
-       << "            D      V      i    PA(S)   PA(A)" 
+       << "            D      V      i    PA(S)   PA(A)"
        << "    L(I)  L(II) L(III)     B" << endl
        << "         '  \"     mag     o      o       o  "
        << "     o      o      o       o" << endl;
@@ -122,7 +122,7 @@ void main()
     Shape ( Planet, R_equ,f );
     D_equ = Arcs*2.0*asin(R_equ/(Delta*AU));
 
-    // Transformation from mean equator and equinox of date 
+    // Transformation from mean equator and equinox of date
     // to body-fixed frame
     Orient ( Planet, Sys_I  ,T0, E_I  , Sense );  E_I   = E_I   * P;
     Orient ( Planet, Sys_II ,T0, E_II , Sense );  E_II  = E_II  * P;
@@ -132,7 +132,7 @@ void main()
     Rotation ( -r_geoc, E_I,   Sense, f, long_I,  lat_g,lat_c );
     Rotation ( -r_geoc, E_II,  Sense, f, long_II, lat_g,lat_c );
     Rotation ( -r_geoc, E_III, Sense, f, long_III,lat_g,lat_c );
-    
+
     // Position angle of the rotation axis
     PosAng_Ax  = PosAng ( r_geoc, Row(E_I,z) );
 
@@ -145,7 +145,7 @@ void main()
       long_I = 2.0*pi-long_I;
       if (PosAng_Ax>pi) PosAng_Ax-=2.0*pi;
     }
-    else  { 
+    else  {
 
       // Ilumination and apparent magnitude
       Illum ( r, r_Earth, Elong,phi,k );
@@ -165,12 +165,12 @@ void main()
 
 
     // Output
-    if (Planet==Sun) 
+    if (Planet==Sun)
       cout << " " << left << setw(6) << Name[Planet] << right << fixed
-           << setprecision(2) << setw(8) << Angle(D_equ/60.0,DMMm) 
-           << setprecision(2) << setw(29) << Deg*PosAng_Ax; 
+           << setprecision(2) << setw(8) << Angle(D_equ/60.0,DMMm)
+           << setprecision(2) << setw(29) << Deg*PosAng_Ax;
     else
-      cout << " " << left << setw(9) << Name[Planet] << right << fixed 
+      cout << " " << left << setw(9) << Name[Planet] << right << fixed
            << setprecision(2) << setw(5) << D_equ
            << setprecision(1) << setw(6) << mag
            << setprecision(1) << setw(7) << Deg*phi
@@ -180,30 +180,30 @@ void main()
     // Print planetographic longitude(s) of the Earth
     switch (Planet) {
 
-      // Bodies with system I only  
+      // Bodies with system I only
       case Sun: case Mercury: case Venus: case Mars: case Pluto:
-        cout << setprecision(2) << setw(8) << Deg*long_I 
+        cout << setprecision(2) << setw(8) << Deg*long_I
              << setw(14) << " ";
         break;
-      
+
       case Jupiter:
-        cout << setprecision(2) << setw(8) << Deg*long_I 
+        cout << setprecision(2) << setw(8) << Deg*long_I
              << setprecision(2) << setw(7) << Deg*long_II
              << setprecision(2) << setw(7) << Deg*long_III;
         break;
-      
+
       case Saturn:
-        cout << setprecision(2) << setw(8)  << Deg*long_I 
+        cout << setprecision(2) << setw(8)  << Deg*long_I
              << setprecision(2) << setw(14) << Deg*long_III;
         break;
-      
-      // Bodies with system III only  
+
+      // Bodies with system III only
       case Uranus: case Neptune:
         cout << setprecision(2) << setw(22) << Deg*long_III;
     }
-    
+
     cout << setprecision(2) << setw(8)  << Deg*lat_g << endl;
- 
+
    } // End Planet loop
 
 }

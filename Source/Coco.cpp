@@ -6,12 +6,12 @@
 //
 // Notes:
 //
-//   This software is protected by national and international copyright. 
-//   Any unauthorized use, reproduction or modificaton is unlawful and 
-//   will be prosecuted. Commercial and non-private application of the 
+//   This software is protected by national and international copyright.
+//   Any unauthorized use, reproduction or modificaton is unlawful and
+//   will be prosecuted. Commercial and non-private application of the
 //   software in any form is strictly prohibited unless otherwise granted
 //   by the authors.
-//   
+//
 // (c) 1999 Oliver Montenbruck, Thomas Pfleger
 //
 //------------------------------------------------------------------------------
@@ -27,10 +27,8 @@
 #include "APC_Time.h"
 #include "APC_VecMat3D.h"
 
-#ifdef __GNUC__   // GNU C++ Adaptations
 #include <ctype.h>
-#include "GNU_iomanip.h"
-#endif
+
 
 using namespace std;
 
@@ -40,7 +38,7 @@ using namespace std;
 //
 enum enOrigin   { Heliocentric, Geocentric };  // Origin of coordinates
 enum enRefSys   { Ecliptic, Equator };         // Reference system
-  
+
 
 //
 // Definition of class "Position"
@@ -75,38 +73,38 @@ void Position::Input()
   //
   char c;
 
-  
+
   // Header
   cout << endl << "New input:" << endl << endl;
 
-  
+
   // Query reference system
   while (true) {
 
     cout << "  Reference system (e=ecliptic,a=equator) ... ";
     cin >> c; cin.ignore(81,'\n'); c = tolower(c);
-    
+
     if (c=='e') { m_RefSys=Ecliptic; break; };
     if (c=='a') { m_RefSys=Equator;  break; };
   }
-  
-  
+
+
   // Query coordinates
   while (true) {
-    
+
     cout << "  Format (c=cartesian,p=polar)            ... ";
     cin >> c; cin.ignore(81,'\n'); c = tolower(c);
-  
-    if (c=='c') { 
+
+    if (c=='c') {
       double x,y,z;
       cout << "  Coordinates (x y z)                     ... ";
-      cin >> x >> y >> z; 
+      cin >> x >> y >> z;
       m_R = Vec3D(x,y,z);
       break;
     };
-  
-    if (c=='p') { 
-    
+
+    if (c=='p') {
+
       if (m_RefSys==Ecliptic) {
 
         int     d,m;
@@ -117,9 +115,9 @@ void Position::Input()
         cin >> R; cin.ignore(81,'\n');
         m_R = Vec3D(Polar(L,B,R));
       }
-      
+
       else {
-        
+
         int     d,m;
         double  s, RA,Dec,R;
         cout << "  Coordinates (RA [h m s] Dec [o ' \"] R)  ... ";
@@ -128,44 +126,44 @@ void Position::Input()
         cin >> R; cin.ignore(81,'\n');
         m_R = Vec3D(Polar(RA,Dec,R));
       };
-      
-      break; 
-    
+
+      break;
+
     };
-  
+
   }
 
-  
-  // Query equinox 
+
+  // Query equinox
   double Year;
-  
+
   cout << "  Equinox (yyyy.y)                        ... ";
   cin >> Year; cin.ignore(81,'\n');
-  
+
   m_TEquinox = (Year-2000.0)/100.0;
-  
-  
+
+
   // Query origin
   while (true) {
-  
+
     cout << "  Origin (h=heliocentric,g=geocentric)    ... ";
     cin >> c; cin.ignore(81,'\n'); c = tolower(c);
-    
+
     if (c=='g') { m_Origin=Geocentric;   break; };
     if (c=='h') { m_Origin=Heliocentric; break; };
   }
-  
-  
+
+
   // Query epoch
   int    year,month,day;
   double Hour;
 
   cout << "  Epoch (yyyy mm dd hh.h)                 ... ";
   cin >> year >> month >> day >> Hour; cin.ignore(81,'\n');
-  
+
   m_MjdEpoch = Mjd(year,month,day)+Hour/24.0;
 
-  
+
   cout << endl; // Trailer
 }
 
@@ -183,7 +181,7 @@ void Position::SetOrigin(enOrigin Origin)
 
   if (Origin!=m_Origin) {
 
-    // Geocentric coordinates of the Sun at epoch w.r.t. 
+    // Geocentric coordinates of the Sun at epoch w.r.t.
     // given reference system and equinox
     T_Epoch = (m_MjdEpoch-MJD_J2000)/36525.0;
     if (m_RefSys==Ecliptic)
@@ -191,12 +189,12 @@ void Position::SetOrigin(enOrigin Origin)
     else
       R_Sun = Ecl2EquMatrix(m_TEquinox) *
               PrecMatrix_Ecl(T_Epoch,m_TEquinox) * SunPos(T_Epoch);
-    
+
     // Change origin
-    if (m_Origin==Heliocentric) { 
+    if (m_Origin==Heliocentric) {
       m_R += R_Sun; m_Origin = Geocentric;
     }
-    else { 
+    else {
       m_R -= R_Sun; m_Origin = Heliocentric;
     };
 
@@ -223,14 +221,14 @@ void Position::SetRefSys(enRefSys RefSys)
 //
 // Change of equinox
 //
-void Position::SetEquinox(double T_Equinox) 
+void Position::SetEquinox(double T_Equinox)
 {
   if (T_Equinox!=m_TEquinox) {
     if (m_RefSys==Equator)
-      m_R = PrecMatrix_Equ(m_TEquinox,T_Equinox) * m_R;  
+      m_R = PrecMatrix_Equ(m_TEquinox,T_Equinox) * m_R;
     else
-      m_R = PrecMatrix_Ecl(m_TEquinox,T_Equinox) * m_R;  
-    m_TEquinox = T_Equinox; 
+      m_R = PrecMatrix_Ecl(m_TEquinox,T_Equinox) * m_R;
+    m_TEquinox = T_Equinox;
   };
 }
 
@@ -245,9 +243,9 @@ void Position::Print()
   cout << (( m_RefSys==Equator )?  "equatorial " : "ecliptic ");
   cout << "coordinates" << endl;
 
-  cout << "(Equinox J" << fixed << setprecision(1) 
+  cout << "(Equinox J" << fixed << setprecision(1)
        << 2000.0+m_TEquinox*100.0 << ",  ";
-  
+
   cout << "Epoch " << DateTime(m_MjdEpoch,HHh) << ")" << endl;
   cout << endl;
 
@@ -257,17 +255,17 @@ void Position::Print()
     cout << "         h  m  s               o  '  \"" << endl;
     cout << "  RA = " << setprecision(2) << setw(11)
          << Angle(Deg*m_R[phi]/15.0,DMMSSs);
-    cout << "    Dec = " << setprecision(1) << showpos << setw(11) 
+    cout << "    Dec = " << setprecision(1) << showpos << setw(11)
          << Angle(Deg*m_R[theta],DMMSSs) << noshowpos;
   }
   else {
     cout << "         o  '  \"             o  '  \"" << endl;
     cout << "  L = " << setprecision(2) << setw(12)
          << Angle(Deg*m_R[phi],DMMSSs);
-    cout << "    B = " << setprecision(1) << showpos << setw(11) 
+    cout << "    B = " << setprecision(1) << showpos << setw(11)
          << Angle(Deg*m_R[theta],DMMSSs) << noshowpos;
   }
-  cout << "    R = " << setprecision(8) << setw(12) 
+  cout << "    R = " << setprecision(8) << setw(12)
        << m_R[r] << endl;
   cout << endl << endl;
 }
@@ -278,7 +276,7 @@ void Position::Print()
 // Main program
 //
 //------------------------------------------------------------------------------
-void main() {
+int main() {
 
   //
   // Variables
@@ -288,19 +286,19 @@ void main() {
   bool      End = false;
   double    Year;
 
-  
+
   // Header
   cout << endl
        << "                COCO: coordinate conversions       " << endl
        << "        (c) 1999 Oliver Montenbruck, Thomas Pfleger" << endl
        << endl;
 
-  
-  // Initialization   
+
+  // Initialization
   Pos.Input();
   Pos.Print();
 
-  
+
   // Command loop
   do {
 
@@ -310,41 +308,41 @@ void main() {
 
     // Actions
     switch (c) {
-      
-      case 'x':  
+
+      case 'x':
         End = true;  break;
-      
+
       case 'a':
         Pos.SetRefSys(Equator); Pos.Print();  break;
-      
+
       case 'e':
         Pos.SetRefSys(Ecliptic); Pos.Print();  break;
-      
+
       case 'g':
         Pos.SetOrigin(Geocentric); Pos.Print();  break;
-      
+
       case 'h':
         Pos.SetOrigin(Heliocentric); Pos.Print();  break;
-      
+
       case 'n':
         Pos.Input(); Pos.Print();  break;
 
-      case 'p': 
+      case 'p':
         cout << "New equinox (yyyy.y)   ... ";
         cin >> Year; cin.ignore(81,'\n');
-        
+
         Pos.SetEquinox( (Year-2000.0)/100.0 );
         Pos.Print();
-        
+
         break;
-      
+
       default:
         // Display help text
         cout << endl
              << "Available commands" << endl
              << "  e=ecliptic,   a=equatorial,   p=precession, " << endl
              << "  g=geocentric, h=heliocentric, n=new input,  " << endl
-             << "  x=exit                                      " << endl 
+             << "  x=exit                                      " << endl
              << endl;
         break;
     }

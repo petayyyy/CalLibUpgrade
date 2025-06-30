@@ -7,12 +7,12 @@
 //
 // Notes:
 //
-//   This software is protected by national and international copyright. 
-//   Any unauthorized use, reproduction or modificaton is unlawful and 
-//   will be prosecuted. Commercial and non-private application of the 
+//   This software is protected by national and international copyright.
+//   Any unauthorized use, reproduction or modificaton is unlawful and
+//   will be prosecuted. Commercial and non-private application of the
 //   software in any form is strictly prohibited unless otherwise granted
 //   by the authors.
-//   
+//
 // (c) 1999 Oliver Montenbruck, Thomas Pfleger
 //
 //
@@ -33,9 +33,8 @@
 #include "APC_Time.h"
 #include "APC_VecMat3D.h"
 
-#ifdef __GNUC__  // GNU C++ adaptation
-#include "GNU_iomanip.h"
-#endif
+#include <cstdlib>
+#include <cstring>
 
 using namespace std;
 
@@ -68,7 +67,7 @@ void GetElm ( char* Filename,
   double    Year,day;
   ifstream  inp;
 
-  
+
   inp.open(Filename);   // Open orbital elements file
 
 
@@ -100,15 +99,15 @@ void GetElm ( char* Filename,
 
   inp >> omega; inp.ignore(81,'\n');
   cout << "  argument of perihelion  "
-       << setprecision(5) << setw(12) << omega << " deg" << endl; 
+       << setprecision(5) << setw(12) << omega << " deg" << endl;
 
   inp >> Year; inp.ignore(81,'\n');
   cout << "  equinox                 "
        << setprecision(2) << setw(9)  << Year << endl;
-  
+
   inp.close();
-  
-  
+
+
   T_eqx0 = (Year-2000.0)/100.0;
 
   PQR = GaussVec(Rad*Omega, Rad*i, Rad*omega);
@@ -141,7 +140,7 @@ void GetEph (double& MjdStart, double& Step, double& MjdEnd, double& T_eqx)
        << " Begin and end of the ephemeris: " << endl
        << endl;
 
-  
+
   // Query user for start and end date, step and desired equinox
   cout << "  first date (yyyy mm dd hh.hhh)            ... ";
   cin >> year >> month >> day >> hour; cin.ignore(81,'\n');
@@ -158,7 +157,7 @@ void GetEph (double& MjdStart, double& Step, double& MjdEnd, double& T_eqx)
   cout << endl
        << " Desired equinox of the ephemeris (yyyy.y)  ... ";
   cin >> Year; cin.ignore(81,'\n');
-  
+
   T_eqx = (Year-2000.0)/100.0;
 }
 
@@ -168,7 +167,7 @@ void GetEph (double& MjdStart, double& Step, double& MjdEnd, double& T_eqx)
 // Main program
 //
 //------------------------------------------------------------------------------
-void main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
 
   //
   // Variables
@@ -193,41 +192,41 @@ void main(int argc, char* argv[]) {
        << "        (c) 1999 Oliver Montenbruck, Thomas Pfleger       " << endl
        << endl;
 
-  
+
   // Find input file
   GetFilenames( argc, argv, "Comet.dat", InputFile, FoundInputfile,
                 OutputFile, FoundOutputfile );
-  
+
   // Terminate program if input file could not be found
   if ( !FoundInputfile ) {
     cerr << " Terminating program." << endl;
-    exit(-1);
+    return -1;
   }
 
-  
+
   // Input orbital elements and prompt user
   GetElm ( InputFile, Mjd0, q, e, PQR, T_eqx0 );
   GetEph ( MjdStart, Step, MjdEnd, T_eqx );
 
 
-  PQR = PrecMatrix_Ecl(T_eqx0, T_eqx) * PQR; 
-  
+  PQR = PrecMatrix_Ecl(T_eqx0, T_eqx) * PQR;
+
 
   // Redirect output if output file shall be created
   if (FoundOutputfile) {
     OutFile.open(OutputFile);
-    if (OutFile.is_open())
-      cout = OutFile;
+    if (OutFile.is_open());
+      //cout = OutFile;
   }
-  
-  
+
+
   // Header
   cout << endl << endl
        << "    Date     ET   Sun     l      b     r"
        << "       RA          Dec      Distance " << endl
        << setw(43) << " " << "   h  m  s      o  '  \"     (AU) " << endl;
 
-  
+
   // Compute ephemeris
   Date = MjdStart;
 
@@ -240,7 +239,7 @@ void main(int argc, char* argv[]) {
 
     // Heliocentric ecliptic coordinates of the comet, equinox T_eqx
     Kepler (GM_Sun, Mjd0, Date, q, e, PQR, r_helioc, v_helioc);
-    
+
     // Geometric geocentric coordinates of the comet
     r_geoc = r_helioc + R_Sun;
 
@@ -253,9 +252,9 @@ void main(int argc, char* argv[]) {
     r_equ = Ecl2EquMatrix(T_eqx) * r_geoc;
 
     // Output
-    cout << DateTime(Date,HHh) 
+    cout << DateTime(Date,HHh)
          << fixed << setprecision(1)
-         << setw(7) << Deg*R_Sun[phi] 
+         << setw(7) << Deg*R_Sun[phi]
          << setw(7) << Deg*r_helioc[phi]
          << setw(6) << Deg*r_helioc[theta]
          << setprecision(3) << setw(7)  << r_helioc[r]
@@ -263,9 +262,9 @@ void main(int argc, char* argv[]) {
          << "  " << showpos << setw(9)  << Angle(Deg*r_equ[theta],DMMSS)
          << noshowpos << setprecision(6) << setw(11) << dist
          << endl;
-    
-    ++n_line; 
-    
+
+    ++n_line;
+
     if ( (n_line % 5) == 0 ) cout << endl; // insert line feed every 5 lines
 
     Date += Step; // Next time step

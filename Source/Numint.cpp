@@ -6,12 +6,12 @@
 //
 // Notes:
 //
-//   This software is protected by national and international copyright. 
-//   Any unauthorized use, reproduction or modificaton is unlawful and 
-//   will be prosecuted. Commercial and non-private application of the 
+//   This software is protected by national and international copyright.
+//   Any unauthorized use, reproduction or modificaton is unlawful and
+//   will be prosecuted. Commercial and non-private application of the
 //   software in any form is strictly prohibited unless otherwise granted
 //   by the authors.
-//   
+//
 // (c) 1999 Oliver Montenbruck, Thomas Pfleger
 //
 //------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ using namespace std;
 
 //------------------------------------------------------------------------------
 //
-// Accel: Calculates the acceleration vector for a minor body in 
+// Accel: Calculates the acceleration vector for a minor body in
 //        the solar system
 //
 // Input:
@@ -58,9 +58,9 @@ Vec3D Accel (double Mjd, const Vec3D& r)
   //
   // Constants
   //
-  
+
   // Grav. constant * solar and planetary masses in AU**3/d**2
-  static const double  GM[10] = { 
+  static const double  GM[10] = {
                            GM_Sun,                 // Sun
                            GM_Sun / 6023600.0,     // Mercury
                            GM_Sun /  408523.5,     // Venus
@@ -82,15 +82,15 @@ Vec3D Accel (double Mjd, const Vec3D& r)
   Mat3D       P;
   double      T, D;
 
-  
+
   // Solar attraction
   D = Norm(r);
   a = - GM_Sun * r / (D*D*D);
 
-  
+
   // Planetary perturbation
   T = ( Mjd - MJD_J2000 ) / 36525.0;
-  P = PrecMatrix_Ecl ( T, T_J2000 );    // Precession 
+  P = PrecMatrix_Ecl ( T, T_J2000 );    // Precession
 
   for (iPlanet=Mercury; iPlanet<=Neptune; iPlanet++) {
 
@@ -104,7 +104,7 @@ Vec3D Accel (double Mjd, const Vec3D& r)
     // Direct acceleration
     D = Norm(d);
     a += - GM[iPlanet] * d / (D*D*D);
-  
+
     // Indirect acceleration
     D = Norm(r_p);
     a += - GM[iPlanet] * r_p / (D*D*D);
@@ -123,7 +123,7 @@ Vec3D Accel (double Mjd, const Vec3D& r)
 //   X        Independent variable (Time as Modified Julian Date)
 //   Y[]      State vector (position and velocity)
 //
-// Output: 
+// Output:
 //
 //   dYdX[]   Derivative of state vector w.r.t. X (veloc. and acceleration)
 //
@@ -175,9 +175,9 @@ void WriteElm ( double MjdEpoch, double a, double e, double i,
   cout << "  Long. of ascending node "
        << setprecision(5) << setw(12) << Omega*Deg << " deg" << endl;
   cout << "  Argument of perihelion  "
-       << setprecision(5) << setw(12) << omega*Deg << " deg" << endl; 
+       << setprecision(5) << setw(12) << omega*Deg << " deg" << endl;
   cout << "  Mean anomaly (M)        "
-       << setprecision(5) << setw(12) << M*Deg     << " deg" << endl; 
+       << setprecision(5) << setw(12) << M*Deg     << " deg" << endl;
   cout << "  Equinox                 "
        << setprecision(2) << setw(9)  << 2000.0+100*T_eqx0 << endl;
   cout << endl;
@@ -227,9 +227,9 @@ void GetElm ( char* Filename,
   inp >> omega; inp.ignore(81,'\n');
   inp >> M; inp.ignore(81,'\n');
   inp >> Year; inp.ignore(81,'\n');
-  
+
   inp.close();
-  
+
 
   // Compute derived data
   i*=Rad;
@@ -243,7 +243,7 @@ void GetElm ( char* Filename,
 
 
   // Print elements
-  cout << " Orbital elements from file " << Filename << ":" << endl << endl; 
+  cout << " Orbital elements from file " << Filename << ":" << endl << endl;
   WriteElm ( MjdEpoch, a,e,i,Omega,omega,M, T_eqx0 );
 }
 
@@ -296,7 +296,7 @@ void GetEph (double& MjdStart, double& Step, double& MjdEnd, double& T_eqx)
 // Main program
 //
 //------------------------------------------------------------------------------
-void main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
   //
   // Constants
@@ -331,44 +331,44 @@ void main(int argc, char* argv[])
 
   // Title
   cout << endl
-       << "  NUMINT: numerical integration of perturbed minor planet orbits" 
+       << "  NUMINT: numerical integration of perturbed minor planet orbits"
        << endl
-       << "           (c) 1999 Oliver Montenbruck, Thomas Pfleger          " 
+       << "           (c) 1999 Oliver Montenbruck, Thomas Pfleger          "
        << endl << endl;
 
-  
+
   // Find input and optional output files
   GetFilenames( argc, argv, "Numint.dat", InputFile, FoundInputfile,
                 OutputFile, FoundOutputfile );
-  
+
   // Terminate program if input file could not be found
   if (!FoundInputfile) {
     cerr << " Terminating program." << endl;
-    exit(-1);
+    return -1;
   }
 
-  
+
   // Read orbital elements from file and prompt user for ephemeris data
   GetElm ( InputFile, MjdEpoch, a, e, M, PQR, T_eqx0 );
   GetEph ( MjdStart, Step, MjdEnd, T_eqx );
-  
-  
+
+
   // Redirect output if output file shall be created
   if (FoundOutputfile) {
     OutFile.open(OutputFile);
-    if (OutFile.is_open())
-      cout = OutFile;
+    if (OutFile.is_open());
+      //cout = OutFile;
   }
-  
-  
-  P = PrecMatrix_Ecl(T_J2000,T_eqx); 
 
-  
+
+  P = PrecMatrix_Ecl(T_J2000,T_eqx);
+
+
   // Initial state vector (ecliptic and equinox of J2000)
-  PQR = PrecMatrix_Ecl(T_eqx0,T_J2000) * PQR; 
+  PQR = PrecMatrix_Ecl(T_eqx0,T_J2000) * PQR;
 
   Ellip ( GM_Sun, M,a,e, r,v );
-  
+
   r = PQR*r;
   v = PQR*v;
 
@@ -377,27 +377,27 @@ void main(int argc, char* argv[])
   Y[4]=v[x]; Y[5]=v[y]; Y[6]=v[z];
 
   Mjd = MjdEpoch;
-  
-  
-  // Start integration: propagate state vector from epoch 
-  // to start of ephemeris                                
-  State = DE_INIT; 
+
+
+  // Start integration: propagate state vector from epoch
+  // to start of ephemeris
+  State = DE_INIT;
   relerr = eps;  abserr = 0.0;
-    
-  do {                                    
-    
+
+  do {
+
     Orbit.Integ(Y, Mjd, MjdStart, relerr, abserr, State);
-    
-    if ( State==DE_INVALID_PARAMS ) { 
+
+    if ( State==DE_INVALID_PARAMS ) {
       cerr << "Exit (invalid parameters)" << endl;
-      exit(1); 
+      return 1;
     }
   }
   while ( State > DE_DONE );
 
 
   // Orbital elements at start of ephemeris (equinox T_eqx)
-  r = P*Vec3D(Y[1],Y[2],Y[3]); 
+  r = P*Vec3D(Y[1],Y[2],Y[3]);
   v = P*Vec3D(Y[4],Y[5],Y[6]);
 
   Elements (GM_Sun, r, v, a, e, i, Omega, omega, M);
@@ -422,28 +422,28 @@ void main(int argc, char* argv[])
   n_line = 0;
   MjdStep = MjdStart;
 
-  
+
   // Time loop
   while ( MjdStep < MjdEnd + Step/2 ) {
 
     // Integrate orbit to MjdStep
-    do {                                    
-      
+    do {
+
       Orbit.Integ(Y, Mjd, MjdStep, relerr, abserr, State);
-      
-      if (State==DE_INVALID_PARAMS) { 
+
+      if (State==DE_INVALID_PARAMS) {
         cerr << "Exit (invalid parameters)" << endl;
-        exit(1);
+        return 1;
       }
     }
     while ( State > DE_DONE );
 
 
     // Heliocentric ecliptic coordinates, equinox T_eqx
-    r_helioc = P*Vec3D(Y[1],Y[2],Y[3]); 
+    r_helioc = P*Vec3D(Y[1],Y[2],Y[3]);
     v_helioc = P*Vec3D(Y[4],Y[5],Y[6]);
 
-    
+
     // Geocentric ecliptic coordinates of the Sun, equinox T_eqx
     T = ( Mjd - MJD_J2000 ) / 36525.0;
     R_Sun = PrecMatrix_Ecl(T,T_eqx) * SunPos(T);
@@ -452,21 +452,21 @@ void main(int argc, char* argv[])
     // Geometric geocentric coordinates
     r_geoc = r_helioc + R_Sun;
 
-    
+
     // First-order light-time correction
     dist = Norm(r_geoc);
     fac  = 0.00578*dist;
     r_geoc = r_geoc - fac*v_helioc;
 
-    
+
     // Equatorial coordinates
     r_equ = Ecl2EquMatrix(T_eqx) * r_geoc;
 
-    
+
     // Output
-    cout << DateTime(Mjd,HHh) 
+    cout << DateTime(Mjd,HHh)
          << fixed << setprecision(1)
-         << setw(7) << Deg*R_Sun[phi] 
+         << setw(7) << Deg*R_Sun[phi]
          << setw(7) << Deg*r_helioc[phi]
          << setw(6) << Deg*r_helioc[theta]
          << setprecision(3) << setw(7) << r_helioc[R]
@@ -474,9 +474,9 @@ void main(int argc, char* argv[])
          << "  " << showpos << setw(9) << Angle(Deg*r_equ[theta],DMMSS)
          << noshowpos << setprecision(6) << setw(11) << dist
          << endl;
-    
-    ++n_line; 
-    
+
+    ++n_line;
+
     if ( (n_line % 5) ==0 ) cout << endl; // insert line feed every 5 lines
 
     MjdStep += Step;  // Next time step

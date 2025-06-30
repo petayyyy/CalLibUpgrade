@@ -6,12 +6,12 @@
 //
 // Notes:
 //
-//   This software is protected by national and international copyright. 
-//   Any unauthorized use, reproduction or modificaton is unlawful and 
-//   will be prosecuted. Commercial and non-private application of the 
+//   This software is protected by national and international copyright.
+//   Any unauthorized use, reproduction or modificaton is unlawful and
+//   will be prosecuted. Commercial and non-private application of the
 //   software in any form is strictly prohibited unless otherwise granted
 //   by the authors.
-//   
+//
 // (c) 1999 Oliver Montenbruck, Thomas Pfleger
 //
 //------------------------------------------------------------------------------
@@ -78,14 +78,14 @@ void GetEph (double& MjdStart, double& Step, double& MjdEnd)
 // Main program
 //
 //------------------------------------------------------------------------------
-void main()
+int main()
 {
   //
   // Constants
   //
-  const int    Degree    = 10;  
+  const int    Degree    = 10;
   const double Interval  = 10.0/36525.0;  // 10d in [cy]
-  
+
   //
   // Variables
   //
@@ -104,10 +104,10 @@ void main()
        << endl;
 
 
-  // Prompt user for date of start, step size and end of ephemeris 
+  // Prompt user for date of start, step size and end of ephemeris
   GetEph (MjdStart, Step, MjdEnd);
 
-  
+
   // Header
   cout << endl << endl
        << "    Date      ET        RA            Dec      Distance  "
@@ -118,14 +118,14 @@ void main()
   // Compute ephemeris
   Date = MjdStart;
 
-  
+
   // Time loop
   while ( Date < MjdEnd + Step/2 ) {
 
     // Geocentric coordinates of the Moon from Chebyshev approximation
     // (true equator and equinox of date)
     T = ( Date - MJD_J2000 ) / 36525.0;
-    
+
     r_Moon = ChebMoonEqu.Value(T);
 
 
@@ -135,16 +135,16 @@ void main()
 
 
     // Output
-    cout << " " << DateTime(Date,HHMM) 
-         << fixed 
+    cout << " " << DateTime(Date,HHMM)
+         << fixed
          << setprecision(2) << setw(14) << Angle(Deg*r_Moon[phi]/15.0,DMMSSs)
-         << "  " << showpos 
+         << "  " << showpos
          << setprecision(1) << setw(11) << Angle(Deg*r_Moon[theta],DMMSSs)
-         << noshowpos 
+         << noshowpos
          << setprecision(3) << setw(10) << Dist/R_Earth
          << setprecision(2) << setw(12) << Angle(60.0*Deg*Parallax,DMMm)
          << endl;
-    
+
     ++n_line; if ( (n_line % 5) ==0 ) cout << endl;
 
 

@@ -3,15 +3,15 @@
 // Module:     EclTimer program (EclTimer.cpp)
 //
 // Purpose:    Computes local circumstances of a solar eclipse
-//                                                                           
+//
 // Notes:
 //
-//   This software is protected by national and international copyright. 
-//   Any unauthorized use, reproduction or modificaton is unlawful and 
-//   will be prosecuted. Commercial and non-private application of the 
+//   This software is protected by national and international copyright.
+//   Any unauthorized use, reproduction or modificaton is unlawful and
+//   will be prosecuted. Commercial and non-private application of the
 //   software in any form is strictly prohibited unless otherwise granted
 //   by the authors.
-//   
+//
 // (c) 1999 Oliver Montenbruck, Thomas Pfleger
 //
 //------------------------------------------------------------------------------
@@ -43,7 +43,7 @@ namespace // unnamed namespace
   // Constants
   //
   const int    Degree   = 8;             // Degree of Chebyshev polynomials
-  const double Interval = 2.0/36525.0;   // Interval for Chebyshev polyn. [cy]  
+  const double Interval = 2.0/36525.0;   // Interval for Chebyshev polyn. [cy]
 
   const double k_Moon   = 0.2725076;     // Ratio Moon/Earth radii (penumbral)
   const double k_Sun    = R_Sun/R_Earth; // Ratio Sun/Earth radii
@@ -58,9 +58,9 @@ enum enShadow { Penumbra, Umbra };
 
 // Structure holding the local circumstances of an eclipse
 struct LocCircs {
-   
+
   // Times in Julian cent. since J2000:
-  double Times[4];  // Contact times (1st to 4th contact) 
+  double Times[4];  // Contact times (1st to 4th contact)
   double TMax;      // Time of maximum eclipse
 
   double Mag;       // Magnitude of the eclipse
@@ -74,7 +74,7 @@ struct LocCircs {
 //
 enShadow ShadowType;
 
-double ET_UT = 0.0; // Difference between ephemeris time 
+double ET_UT = 0.0; // Difference between ephemeris time
                     // and universal time in [s]
 
 // Chebyshev approximation of solar and lunar coordinates
@@ -96,7 +96,7 @@ Vec3D r_Obs_gc; // Observer's geocentric position [Earth radii]
 //   ObsPhi    Geographical latitude of the observer in [rad]
 //
 //------------------------------------------------------------------------------
-void GetInput( double& TNewMoon, double& ET_UT, 
+void GetInput( double& TNewMoon, double& ET_UT,
                double& ObsLambda, double&ObsPhi )
 {
   //
@@ -114,12 +114,12 @@ void GetInput( double& TNewMoon, double& ET_UT,
 
   ETminUT (TNewMoon, ET_UT, valid);
   if ( valid ) {
-    cout << " Difference ET-UT (proposal:" << fixed << setw(6) 
+    cout << " Difference ET-UT (proposal:" << fixed << setw(6)
          << setprecision (1) << ET_UT << " sec)       ... ";
     cin >> ET_UT; cin.ignore(81,'\n');
   }
   else {
-    cout << " Difference ET-UT (sec)" << setw(27) << right << "... "; 
+    cout << " Difference ET-UT (sec)" << setw(27) << right << "... ";
     cin >> ET_UT; cin.ignore(81,'\n');
   }
 
@@ -127,18 +127,18 @@ void GetInput( double& TNewMoon, double& ET_UT,
   cin >> ObsLambda; cin.ignore(81,'\n');
 
   ObsLambda *= Rad;
-  
+
   cout << "                         latitude [deg]       ... ";
   cin >> ObsPhi; cin.ignore(81,'\n');
-  
+
   ObsPhi *= Rad;
 }
 
 
 //------------------------------------------------------------------------------
 //
-// Bessel: Computes the orientation of the fundamental plane, the 
-//         coordinates of the shadow center and the parameters of the 
+// Bessel: Computes the orientation of the fundamental plane, the
+//         coordinates of the shadow center and the parameters of the
 //         shadow cone
 //
 // Input:
@@ -148,7 +148,7 @@ void GetInput( double& TNewMoon, double& ET_UT,
 // Output:
 //
 //   IJK         Unit vectors of the fundamental plane (equatorial)
-//   XSh         Coordinates of the shadow center on the 
+//   XSh         Coordinates of the shadow center on the
 //   YSh           fundamental plane in [Earth radii]
 //   F1          Half angle of the penumbra cone in [rad]
 //   L1          Radius of penumbra cone on the fund. plane [Earth radii]
@@ -180,7 +180,7 @@ void Bessel ( double T_UT,
 
 
   T_ET = T_UT + ET_UT/(86400.0*36525.0);
-  
+
   // Calculate solar and lunar equatorial coordinates in Earth radii
   r_Sun  = SolarEph.Value(T_ET-tau_Sun) * AU / R_Earth;
   r_Moon = LunarEph.Value(T_ET)              / R_Earth;
@@ -190,11 +190,11 @@ void Bessel ( double T_UT,
   r_MS = r_Sun - r_Moon;
   DistMS = Norm(r_MS);
   k = r_MS / DistMS;
-  
+
   // The unit vector i lies in the equatorial
   // plane and is perpendicular to k
   i = Polar( k[phi] + pi/2.0, 0 );
-  
+
   // The unit vector j is perpendicular to k and i
   j = Cross(k, i);
 
@@ -212,7 +212,7 @@ void Bessel ( double T_UT,
   L1 = ZSh * (k_Sun + k_Moon) / DistMS + k_Moon;
   L2 = ZSh * (k_Sun - k_Moon) / DistMS - k_Moon;
 }
-   
+
 
 //------------------------------------------------------------------------------
 //
@@ -228,7 +228,7 @@ void Bessel ( double T_UT,
 //
 // Globals used:
 //
-//   r_Obs_gc    Geocentric coordinates of the observer           
+//   r_Obs_gc    Geocentric coordinates of the observer
 //
 //------------------------------------------------------------------------------
 Vec3D Observer (double T_UT, const Mat3D& IJK)
@@ -238,11 +238,11 @@ Vec3D Observer (double T_UT, const Mat3D& IJK)
   //
   Vec3D r_Obs_eq;
 
-  
+
   // Compute equatorial coordinates of observer
   r_Obs_eq = R_z(-GMST(T_UT*36525.0+MJD_J2000)) * r_Obs_gc;
-  
-  return Transp(IJK)*r_Obs_eq; 
+
+  return Transp(IJK)*r_Obs_eq;
 }
 
 
@@ -250,10 +250,10 @@ Vec3D Observer (double T_UT, const Mat3D& IJK)
 //
 // ShadowDist:
 //
-//   Computes the shadow distance function f(t)=D(t)**2-L(t)**2, where D is  
-//   the distance of the observer from the shadow axis, while L is the       
-//   radius of the shadow cone. For f(t)=0 the observer touches the shadow   
-//   cone (unit Earth radii squared).                                        
+//   Computes the shadow distance function f(t)=D(t)**2-L(t)**2, where D is
+//   the distance of the observer from the shadow axis, while L is the
+//   radius of the shadow cone. For f(t)=0 the observer touches the shadow
+//   cone (unit Earth radii squared).
 //
 // Input:
 //
@@ -263,9 +263,9 @@ Vec3D Observer (double T_UT, const Mat3D& IJK)
 //
 // Globals used:
 //
-//   ShadowType  Umbra or penumbra                                
+//   ShadowType  Umbra or penumbra
 //   ET_UT       Difference between ephemeris time and universal time [s]
-//   r_Obs_gc    Geocentric coordinates of the observer           
+//   r_Obs_gc    Geocentric coordinates of the observer
 //   SolarEph    Chebyshev polynomials of solar coordinates
 //   LunarEph    Chebyshev polynomials of lunar coordinates
 //
@@ -298,36 +298,36 @@ double ShadowDist (double T_UT)
 //
 // Contacts:
 //
-//   Determines the phase, magnitude and times of contacts of a solar        
-//   eclipse for a specified location of the observer based on the time      
-//   of new Moon.                                                            
+//   Determines the phase, magnitude and times of contacts of a solar
+//   eclipse for a specified location of the observer based on the time
+//   of new Moon.
 //
-// Description:                                                              
-//                                                                           
+// Description:
+//
 //   For computing the times of contact the roots of f(t)=D(t)**2-L(t)**2
-//   are determined, where D is the observer's distance from the shadow 
-//   axis, L is the radius of the shadow cone. 
-//   For f(t)=0 the observer lies on the surface of the shadow cone and 
-//   sees the touching rims of Sun and Moon.    
-//                                                                           
-//   Using quadratic interpolation, the times of 1st and 4th contacts are 
-//   first computed, at which the observer touches the penumbra cone. 
+//   are determined, where D is the observer's distance from the shadow
+//   axis, L is the radius of the shadow cone.
+//   For f(t)=0 the observer lies on the surface of the shadow cone and
+//   sees the touching rims of Sun and Moon.
+//
+//   Using quadratic interpolation, the times of 1st and 4th contacts are
+//   first computed, at which the observer touches the penumbra cone.
 //   Simultaneously the time of maximum eclipse is obtained, at which the
-//   distance between observer and shadow axis attains a minimum.                               
-//                                                                           
-//   If the eclipse is at least a partial one, Contacts computes the 
+//   distance between observer and shadow axis attains a minimum.
+//
+//   If the eclipse is at least a partial one, Contacts computes the
 //   magnitude of the eclipse and the obscuration of the Sun by the Moon
-//   for the time of maximum eclipse.                                                          
-//                                                                           
+//   for the time of maximum eclipse.
+//
 //   In case the observer's distance from the shadow axis and the umbra
 //   cone diameter at the time of maximum eclipse result in a total or
 //   annular eclipse, the times of 2nd and 3rd contact may subsequently be
-//   derived. Since the duration of the total or annular phase never 
+//   derived. Since the duration of the total or annular phase never
 //   exceeds a value of approximately 13 minutes, the 2nd and 3rd contacts
-//   take place in a corresponding interval before or after the maximum. 
-//   Making use of this fact, one may use a method like the regula falsi 
-//   or the Pegasus method, which converge more rapidly than quadratic 
-//   interpolation, for computing the contact times.                                                        
+//   take place in a corresponding interval before or after the maximum.
+//   Making use of this fact, one may use a method like the regula falsi
+//   or the Pegasus method, which converge more rapidly than quadratic
+//   interpolation, for computing the contact times.
 //
 // Input:
 //
@@ -338,7 +338,7 @@ double ShadowDist (double T_UT)
 // Globals used:
 //
 //   ET_UT       Difference between ephemeris time and universal time [s]
-//   r_Obs_gc    Geocentric coordinates of the observer           
+//   r_Obs_gc    Geocentric coordinates of the observer
 //   SolarEph    Chebyshev polynomials of solar coordinates
 //   LunarEph    Chebyshev polynomials of lunar coordinates
 //
@@ -355,7 +355,7 @@ LocCircs Contacts(double TNewMoon)
   const double dT  = 0.25/hCent;  // ~15 min. in Julian centuries
   const double eps = 1.0E-10;     // Accuracy for contact times ( ~0.3 s )
 
-    
+
   //
   // Variables
   //
@@ -372,22 +372,22 @@ LocCircs Contacts(double TNewMoon)
   // Prepare for search of outer contacts
   for (int i = 0; i < 4; i++)
     LC.Times[i] = TNewMoon;
-  
+
   nContactsFound = 0;
   nRoots = 0;
-  
+
   T_UT = TNewMoon + (-Range-dTab) / hCent;
   ShadowType = Penumbra;
   PDplus = ShadowDist(T_UT);
-  
+
   T_UT = TNewMoon + (-Range-2.0*dTab) / hCent;
 
-  
+
   do {  // try to find outer contacts
 
     T_UT += 2.0 * dTab/hCent; // Compute next time step
 
-    
+
     // Compute square of the shadow distance at times T_UT-dTab,
     // T_UT and T_UT+dTab and interpolate
     PDminus = PDplus;
@@ -429,7 +429,7 @@ LocCircs Contacts(double TNewMoon)
   else
     LC.Phase = partial;   // Eclipse is at least partial
 
-  
+
   //----------------------------------------------------------------------------
   //
   // Degree of obscuration and magnitude of the eclipse
@@ -443,10 +443,10 @@ LocCircs Contacts(double TNewMoon)
     Vec3D r_Obs = Observer (LC.TMax, IJK);
 
     // Distance between observer and shadow axis
-    m = sqrt ( 
-      (r_Obs[x] - XSh) * (r_Obs[x] - XSh) + 
+    m = sqrt (
+      (r_Obs[x] - XSh) * (r_Obs[x] - XSh) +
       (r_Obs[y] - YSh) * (r_Obs[y] - YSh) );
-    
+
     // Penumbral and umbral radius at the observer's place
     // (L2<0 for a total eclipse!)
     LL1 = L1 - r_Obs[z] * tan(F1);
@@ -469,8 +469,8 @@ LocCircs Contacts(double TNewMoon)
 
       case noEclipse: LC.Obsc = 0.0; break;
 
-      case partial:       
-        
+      case partial:
+
         B = acos( (LL1*LL2+m*m)/(m*(LL1+LL2)) );
         C = acos( (LL1*LL1+LL2*LL2-2.0*m*m) /
                   (LL1*LL1-LL2*LL2) );
@@ -488,11 +488,11 @@ LocCircs Contacts(double TNewMoon)
       case total:
         LC.Obsc = 1.0;
     }
-  
+
   } // if ( LC.Phase > noEclipse )
 
 
-  
+
   //----------------------------------------------------------------------------
   // Use the Pegasus method to locate the times of 2nd and 3rd contact
   // starting at the time of maximum eclipse. Search interval
@@ -515,8 +515,8 @@ LocCircs Contacts(double TNewMoon)
 //
 // PosAngles:
 //
-//   Computes the position angles w.r.t. North (standard definition) and     
-//   with respect to the local vertical.                                     
+//   Computes the position angles w.r.t. North (standard definition) and
+//   with respect to the local vertical.
 //
 // Input:
 //
@@ -531,7 +531,7 @@ LocCircs Contacts(double TNewMoon)
 // Globals used:
 //
 //   ET_UT       Difference between ephemeris time and universal time [s]
-//   r_Obs_gc    Geocentric coordinates of the observer           
+//   r_Obs_gc    Geocentric coordinates of the observer
 //   SolarEph    Chebyshev polynomials of solar coordinates
 //   LunarEph    Chebyshev polynomials of lunar coordinates
 //
@@ -549,7 +549,7 @@ void PosAngles ( double TContacts[], enPhase Phase,
 
   for ( Contact = 0; Contact <= 3; Contact++ ) {
 
-    if (   (Phase > partial) || 
+    if (   (Phase > partial) ||
          ( (Phase==partial) && ( (Contact==0) || (Contact==3))) ) {
 
       T_UT = TContacts[Contact];
@@ -560,9 +560,9 @@ void PosAngles ( double TContacts[], enPhase Phase,
 
       // Shadow radius at the observer's place
       switch (Contact) {
-        case 0: 
+        case 0:
         case 3: LL = L1 - r_Obs[z] * tan(F1); break;
-        case 1: 
+        case 1:
         case 2: LL = L2 - r_Obs[z] * tan(F2);
       }
 
@@ -601,19 +601,19 @@ void PrintResults (const LocCircs& LC, const double P[], const double V[])
     break;
 
     case partial:
-      cout << " Partial eclipse with M=" << fixed << setw(5) 
-           << setprecision(3) << LC.Mag  << " ("  << setw(4) 
+      cout << " Partial eclipse with M=" << fixed << setw(5)
+           << setprecision(3) << LC.Mag  << " ("  << setw(4)
            << setprecision(2) << LC.Obsc << ")."  << endl;
     break;
 
     case annular:
-      cout << " Annular eclipse with M=" << fixed << setw(5) 
-           << setprecision(3) << LC.Mag  << " ("  << setw(4) 
+      cout << " Annular eclipse with M=" << fixed << setw(5)
+           << setprecision(3) << LC.Mag  << " ("  << setw(4)
            << setprecision(2) << LC.Obsc << ")."  << endl;
     break;
 
     case total:
-      cout << " Total eclipse with M=" << fixed << setw(5) 
+      cout << " Total eclipse with M=" << fixed << setw(5)
            << setprecision(3) << LC.Mag << "."  << endl;
   }
 
@@ -659,7 +659,7 @@ void PrintResults (const LocCircs& LC, const double P[], const double V[])
 // Main program
 //
 //------------------------------------------------------------------------------
-void main() 
+int main()
 {
   //
   // Variables
@@ -683,7 +683,7 @@ void main()
   r_Obs_gc = Site (ObsLambda, ObsPhi) / R_Earth;
 
   LocCircs LC = Contacts (TNewMoon);    // Compute contact times...
-  
+
   PosAngles (LC.Times, LC.Phase, P, V); // ...and position angles
 
   PrintResults (LC, P, V);
