@@ -51,11 +51,14 @@ set(SOURCE_FILES
     # Source/Occult.cpp
     # Source/Phases.cpp
     # Source/Phys.cpp
+
     # Source/Planpos.cpp
+    Source/AZ.cpp
+    
     # Source/Planrise.cpp
     # Source/PPMbin.cpp
     # Source/PPMcat.cpp
-    Source/Sunset.cpp
+    # Source/Sunset.cpp
     # Source/AOEcat.cpp
 )
 
